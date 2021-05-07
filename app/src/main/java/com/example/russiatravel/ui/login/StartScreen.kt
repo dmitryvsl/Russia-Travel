@@ -1,8 +1,7 @@
 package com.example.russiatravel.ui.login
 
 import android.util.Log
-import androidx.compose.animation.animateColor
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -26,6 +25,7 @@ import androidx.navigation.compose.navigate
 import com.example.russiatravel.R
 import com.example.russiatravel.ui.theme.ColorBlueDark
 
+@ExperimentalAnimationApi
 @Composable
 fun StartScreen(navController: NavController) {
 
@@ -45,12 +45,14 @@ fun StartScreen(navController: NavController) {
             color = transitionData.surfaceColor,
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
         ) {
-            when (currentScreen){
-                ScreenFragment.Welcome -> WelcomeScreen(navController) {
-                    currentScreen = it
+            Crossfade(targetState = currentScreen) { screen ->
+                when (screen){
+                    ScreenFragment.Welcome -> WelcomeScreen(navController) {
+                        currentScreen = it
+                    }
+                    ScreenFragment.CreateAccount -> CreateAccountScreen(navController){currentScreen = it}
+                    ScreenFragment.Login -> LoginScreen(navController) {currentScreen = it}
                 }
-                ScreenFragment.CreateAccount -> CreateAccountScreen(navController){currentScreen = it}
-                ScreenFragment.Login -> LoginScreen(navController) {currentScreen = it}
             }
         }
     }
@@ -71,10 +73,7 @@ private fun updateTransitionData(screenFragment: ScreenFragment): TransitionData
             ScreenFragment.CreateAccount, ScreenFragment.Login -> Color.White
         }
     }
-    val size = transition.animateDp (
-        transitionSpec = { spring(stiffness = 40f)},
-        label = ""
-    ) { state ->
+    val size = transition.animateDp(label = ""){ state ->
         when (state) {
             ScreenFragment.Welcome -> 300.dp
             ScreenFragment.CreateAccount -> 600.dp

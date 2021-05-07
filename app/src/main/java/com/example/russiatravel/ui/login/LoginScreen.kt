@@ -1,7 +1,10 @@
 package com.example.russiatravel.ui.login
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
@@ -21,7 +24,14 @@ import com.example.russiatravel.ui.theme.ColorBrown
 import com.example.russiatravel.ui.theme.ColorWhiteDark
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Mail
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import com.example.russiatravel.ui.components.CustomTextField
+import com.example.russiatravel.ui.components.FilledButton
 
 @Composable
 fun LoginScreen(
@@ -29,48 +39,75 @@ fun LoginScreen(
     onCreateAccountButtonClick: (ScreenFragment) -> Unit
 ) {
     var emailValue by remember { mutableStateOf("") }
+    var passwordValue by remember { mutableStateOf("") }
+    val spacerHeight = 20.dp
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
+        Spacer(Modifier.height(40.dp))
         Text(
             "Авторизуйтесь, чтобы войти",
-            style = TextStyle(
-                color = ColorBlueDark,
-                fontSize = 24.sp,
-                fontFamily = FontFamily(
-                    Font(
-                        resId = R.font.didactfothic,
-                        weight = FontWeight.Bold,
-                        style = FontStyle.Normal
-                    )
-                )
-            )
+            style = MaterialTheme.typography.subtitle1.copy(color = ColorBlueDark)
         )
+        Spacer(Modifier.height(spacerHeight))
 
-        Spacer(Modifier.height(20.dp))
-
-
-        TextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
+        CustomTextField(
             value = emailValue,
-            shape = RoundedCornerShape(14.dp),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = ColorWhiteDark,
-                textColor = ColorBrown,
-                focusedIndicatorColor = Color.Transparent,
-                disabledIndicatorColor = Color.Transparent
-            ),
-            placeholder = { Text("Email") },
-            trailingIcon = {
-                Icon(Icons.Default.Email, null)
-            },
+            hintText = "Email",
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             onValueChange = { emailValue = it },
+            icon = Icons.Default.Mail
         )
+        Spacer(Modifier.height(14.dp))
+        CustomTextField(
+            passwordValue,
+            hintText = "Пароль",
+            icon = Icons.Default.Lock,
+            visualTransformation = PasswordVisualTransformation(),
+            onValueChange = { passwordValue = it },
+        )
+        Spacer(Modifier.height(4.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ){
+            Text(
+                text = "Забыли пароль?",
+                modifier = Modifier.clickable {  },
+                color = Color.Black,
+                style = MaterialTheme.typography.button
+            )
+        }
+
+        Spacer (Modifier.height(spacerHeight))
+
+        FilledButton(
+            modifier = Modifier.padding(8.dp),
+            text = "Войти",
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = ColorBlueDark,
+                contentColor = Color.White
+            ),
+        ) {
+
+        }
+
+        Spacer (Modifier.height(spacerHeight))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text ("Нет аккаунта? ", style = MaterialTheme.typography.button.copy(color = Color.Black))
+            Text(
+                modifier = Modifier.clickable { onCreateAccountButtonClick(ScreenFragment.CreateAccount) },
+                text = "Регистрация",
+                style = MaterialTheme.typography.button.copy(color = ColorBlueDark))
+        }
+
+        Spacer (Modifier.height(spacerHeight))
     }
 
 }

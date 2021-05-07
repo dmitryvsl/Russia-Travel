@@ -1,6 +1,7 @@
 package com.example.russiatravel.ui
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
@@ -21,6 +22,7 @@ sealed class Route(val id: String) {
     object Filter : Route("filter")
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
@@ -34,6 +36,7 @@ fun NavGraph() {
 
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun Contents(route: NavBackStackEntry, navController: NavController) {
     Crossfade(targetState = route) {
