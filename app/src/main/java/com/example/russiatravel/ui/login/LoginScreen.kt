@@ -1,6 +1,7 @@
 package com.example.russiatravel.ui.login
 
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,9 +31,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.navigation.compose.navigate
+import com.example.russiatravel.ui.Route
 import com.example.russiatravel.ui.components.CustomTextField
 import com.example.russiatravel.ui.components.FilledButton
+import kotlinx.coroutines.delay
 
+@ExperimentalAnimationApi
 @Composable
 fun LoginScreen(
     navController: NavController,
@@ -41,73 +46,107 @@ fun LoginScreen(
     var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     val spacerHeight = 20.dp
+    var isScreenVisible by remember { mutableStateOf(true) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+    AnimatedVisibility(visible = isScreenVisible,
+        initiallyVisible = false,
+        enter = fadeIn(),
+        exit = fadeOut()
     ) {
-        Spacer(Modifier.height(40.dp))
-        Text(
-            "Авторизуйтесь, чтобы войти",
-            style = MaterialTheme.typography.subtitle1.copy(color = ColorBlueDark)
-        )
-        Spacer(Modifier.height(spacerHeight))
-
-        CustomTextField(
-            value = emailValue,
-            hintText = "Email",
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-            onValueChange = { emailValue = it },
-            icon = Icons.Default.Mail
-        )
-        Spacer(Modifier.height(14.dp))
-        CustomTextField(
-            passwordValue,
-            hintText = "Пароль",
-            icon = Icons.Default.Lock,
-            visualTransformation = PasswordVisualTransformation(),
-            onValueChange = { passwordValue = it },
-        )
-        Spacer(Modifier.height(4.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ){
-            Text(
-                text = "Забыли пароль?",
-                modifier = Modifier.clickable {  },
-                color = Color.Black,
-                style = MaterialTheme.typography.button
-            )
-        }
-
-        Spacer (Modifier.height(spacerHeight))
-
-        FilledButton(
-            modifier = Modifier.padding(8.dp),
-            text = "Войти",
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = ColorBlueDark,
-                contentColor = Color.White
-            ),
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
         ) {
-
-        }
-
-        Spacer (Modifier.height(spacerHeight))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text ("Нет аккаунта? ", style = MaterialTheme.typography.button.copy(color = Color.Black))
+            Spacer(Modifier.height(40.dp))
             Text(
-                modifier = Modifier.clickable { onCreateAccountButtonClick(ScreenFragment.CreateAccount) },
-                text = "Регистрация",
-                style = MaterialTheme.typography.button.copy(color = ColorBlueDark))
-        }
+                "Авторизуйтесь, чтобы войти",
+                style = MaterialTheme.typography.subtitle1.copy(color = ColorBlueDark)
+            )
 
-        Spacer (Modifier.height(spacerHeight))
+
+            Spacer(Modifier.height(spacerHeight))
+
+            CustomTextField(
+                value = emailValue,
+                hintText = "Email",
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                onValueChange = { emailValue = it },
+                icon = Icons.Default.Mail
+            )
+            Spacer(Modifier.height(14.dp))
+            CustomTextField(
+                passwordValue,
+                hintText = "Пароль",
+                icon = Icons.Default.Lock,
+                visualTransformation = PasswordVisualTransformation(),
+                onValueChange = { passwordValue = it },
+            )
+            Spacer(Modifier.height(4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Text(
+                    text = "Забыли пароль?",
+                    modifier = Modifier.clickable { },
+                    color = Color.Black,
+                    style = MaterialTheme.typography.button
+                )
+            }
+
+            Spacer(Modifier.height(spacerHeight))
+
+            FilledButton(
+                modifier = Modifier.padding(8.dp),
+                text = "Войти",
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = ColorBlueDark,
+                    contentColor = Color.White
+                ),
+            ) {
+
+            }
+
+            Spacer(Modifier.height(spacerHeight))
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "Нет аккаунта? ",
+                    style = MaterialTheme.typography.button.copy(color = Color.Black)
+                )
+                Text(
+                    modifier = Modifier.clickable {
+                        isScreenVisible = false
+                        onCreateAccountButtonClick(ScreenFragment.CreateAccount)
+                    },
+                    text = "Регистрация",
+                    style = MaterialTheme.typography.button.copy(color = ColorBlueDark)
+                )
+            }
+            Spacer(modifier = Modifier.height(14.dp))
+            Text(
+                "или",
+                style = MaterialTheme.typography.button.copy(color = Color.Black)
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            FilledButton(
+                text = "Войти как гость",
+                border = BorderStroke(1.dp, Color.Transparent),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    backgroundColor = ColorBlueDark,
+                    contentColor = Color.White,
+                ),
+                onClick = { navController.navigate(Route.Filter.id) }
+            )
+
+            Spacer(Modifier.height(spacerHeight))
+        }
     }
+
 
 }

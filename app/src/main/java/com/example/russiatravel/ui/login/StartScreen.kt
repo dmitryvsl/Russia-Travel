@@ -5,10 +5,13 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,9 +32,17 @@ import com.example.russiatravel.ui.theme.ColorBlueDark
 @Composable
 fun StartScreen(navController: NavController) {
 
-    var currentScreen: ScreenFragment by remember { mutableStateOf(ScreenFragment.Welcome) }
-    val transitionData = updateTransitionData(currentScreen)
+    var currentScreen by remember { mutableStateOf(ScreenFragment.Welcome) }
+    var semiCurrentScreen: ScreenFragment by remember { mutableStateOf(ScreenFragment.Welcome) }
+    val transitionData = updateTransitionData(semiCurrentScreen)
 
+    val surface by animateDpAsState(
+        targetValue = transitionData.size,
+        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+        finishedListener = {
+            currentScreen = semiCurrentScreen
+        }
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,49 +52,55 @@ fun StartScreen(navController: NavController) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(transitionData.size),
+                .height(surface),
             color = transitionData.surfaceColor,
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
         ) {
-            Crossfade(targetState = currentScreen) { screen ->
-                when (screen){
+            if (semiCurrentScreen == currentScreen) {
+                when (currentScreen) {
                     ScreenFragment.Welcome -> WelcomeScreen(navController) {
-                        currentScreen = it
+                        semiCurrentScreen = it
                     }
-                    ScreenFragment.CreateAccount -> CreateAccountScreen(navController){currentScreen = it}
-                    ScreenFragment.Login -> LoginScreen(navController) {currentScreen = it}
+                    ScreenFragment.CreateAccount -> CreateAccountScreen(navController) {
+                        semiCurrentScreen = it
+                    }
+                    ScreenFragment.Login -> LoginScreen(navController) {
+                        semiCurrentScreen = it
+                    }
                 }
             }
         }
+
+
     }
 }
 
 @Composable
 private fun updateTransitionData(screenFragment: ScreenFragment): TransitionData {
     val transition = updateTransition(screenFragment, label = "")
-    val bgColor = transition.animateColor (label = "") { state ->
+    val bgColor = transition.animateColor(label = "") { state ->
         when (state) {
             ScreenFragment.Welcome -> Color.White
             ScreenFragment.CreateAccount, ScreenFragment.Login -> ColorBlueDark
         }
     }
-    val surfaceColor = transition.animateColor (label = "") { state ->
+    val surfaceColor = transition.animateColor(label = "") { state ->
         when (state) {
             ScreenFragment.Welcome -> ColorBlueDark
             ScreenFragment.CreateAccount, ScreenFragment.Login -> Color.White
         }
     }
-    val size = transition.animateDp(label = ""){ state ->
+    val size = transition.animateDp(label = "") { state ->
         when (state) {
             ScreenFragment.Welcome -> 300.dp
             ScreenFragment.CreateAccount -> 600.dp
-            ScreenFragment.Login -> 400.dp
+            ScreenFragment.Login -> 450.dp
         }
     }
-    return remember(transition) { TransitionData(bgColor,surfaceColor, size) }
+    return remember(transition) { TransitionData(bgColor, surfaceColor, size) }
 }
 
-enum class ScreenFragment{
+enum class ScreenFragment {
     Welcome, CreateAccount, Login
 }
 
@@ -91,7 +108,7 @@ private class TransitionData(
     bgColor: State<Color>,
     surfaceColor: State<Color>,
     size: State<Dp>
-){
+) {
     val bgColor by bgColor
     val surfaceColor by surfaceColor
     val size by size

@@ -1,6 +1,7 @@
 package com.example.russiatravel.ui.login
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,71 +32,66 @@ fun WelcomeScreen(
     navController: NavController,
     onButtonClick: (ScreenFragment) -> Unit
 ) {
-    var visible by remember { mutableStateOf(true) }
-    AnimatedVisibility(
-        visible = visible,
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Text(
+            "Добро пожаловать",
+            style = MaterialTheme.typography.subtitle1
+        )
+
+        Divider(
+            Modifier
+                .width(140.dp)
+                .padding(top = 6.dp, bottom = 40.dp),
+            color = ColorWhiteDark,
+            thickness = 4.dp
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.Center
         ) {
-            Text(
-                "Добро пожаловать",
-                style = MaterialTheme.typography.subtitle1
-            )
-
-            Divider(
-                Modifier
-                    .width(180.dp)
-                    .padding(top = 6.dp, bottom = 40.dp),
-                color = ColorWhiteDark,
-                thickness = 4.dp
-            )
-
-            Row(
-                horizontalArrangement = Arrangement.Center
-            ) {
-
-                FilledButton(
-                    text = "Создать аккаунт",
-                    colors = ButtonDefaults.buttonColors(
-                        backgroundColor = Color.White,
-                        contentColor = ColorBlueDark
-                    ),
-                    onClick = { onButtonClick(ScreenFragment.CreateAccount) })
-
-                Spacer(modifier = Modifier.width(20.dp))
-
-                FilledButton(
-                    text = "Войти",
-                    border = BorderStroke(1.dp, Color.White),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        backgroundColor = ColorBlueDark,
-                        contentColor = Color.White,
-                    ),
-                    onClick = { onButtonClick(ScreenFragment.Login) })
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-            Text(
-                "или",
-                style = MaterialTheme.typography.button.copy(color = Color.White)
-            )
-
-            Spacer(modifier = Modifier.height(14.dp))
 
             FilledButton(
-                text = "Войти как гость",
+                text = "Создать аккаунт",
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.White,
+                    contentColor = ColorBlueDark
+                ),
+                onClick = { onButtonClick(ScreenFragment.CreateAccount) }
+            )
+
+            Spacer(modifier = Modifier.width(20.dp))
+
+            FilledButton(
+                text = "Войти",
                 border = BorderStroke(1.dp, Color.White),
                 colors = ButtonDefaults.outlinedButtonColors(
                     backgroundColor = ColorBlueDark,
                     contentColor = Color.White,
                 ),
-                onClick = { navController.navigate(Route.Filter.id) }
-            )
+                onClick = { onButtonClick(ScreenFragment.Login) })
         }
-    }
 
+        Spacer(modifier = Modifier.height(14.dp))
+        Text(
+            "или",
+            style = MaterialTheme.typography.button.copy(color = Color.White)
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        FilledButton(
+            text = "Войти как гость",
+            border = BorderStroke(1.dp, Color.White),
+            colors = ButtonDefaults.outlinedButtonColors(
+                backgroundColor = ColorBlueDark,
+                contentColor = Color.White,
+            ),
+            onClick = { navController.navigate(Route.Filter.id) }
+        )
+    }
 }
