@@ -31,22 +31,40 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.hilt.navigation.compose.hiltNavGraphViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.navigate
+import com.example.russiatravel.presentation.ui.components.ErrorDialog
+import com.example.russiatravel.presentation.ui.components.LoadingDialog
 import com.example.russiatravel.ui.Route
 import com.example.russiatravel.ui.components.CustomTextField
 import com.example.russiatravel.ui.components.FilledButton
-import kotlinx.coroutines.delay
+import com.example.russiatravel.viewModel.StartScreenViewModel
 
 @ExperimentalAnimationApi
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    onCreateAccountButtonClick: (ScreenFragment) -> Unit
+    onUserLogin: () -> Unit,
+    onCreateAccountButtonClick: (ScreenFragment) -> Unit,
+    viewModel: StartScreenViewModel = hiltNavGraphViewModel()
 ) {
+
     var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     val spacerHeight = 20.dp
     var isScreenVisible by remember { mutableStateOf(true) }
+
+
+    if (viewModel.loadError.value != ""){
+        ErrorDialog (viewModel.loadError.value) {viewModel.loadError.value = ""} // Показывает окно ошибки
+    }
+    if (viewModel.isLoading.value){
+        LoadingDialog() // Показывает окно загрузки
+    }
+    if (viewModel.token.value != ""){
+        onUserLogin () // Метод вызова смены экрана. Срабатывает когда с сервера приходит токен
+    }
+
 
     AnimatedVisibility(visible = isScreenVisible,
         initiallyVisible = false,
@@ -107,7 +125,7 @@ fun LoginScreen(
                     contentColor = Color.White
                 ),
             ) {
-
+                viewModel.authUser(emailValue, passwordValue)
             }
 
             Spacer(Modifier.height(spacerHeight))
@@ -141,12 +159,12 @@ fun LoginScreen(
                     backgroundColor = ColorBlueDark,
                     contentColor = Color.White,
                 ),
-                onClick = { navController.navigate(Route.Filter.id) }
+                onClick = { onUserLogin () }
             )
 
             Spacer(Modifier.height(spacerHeight))
+
         }
     }
-
-
 }
+

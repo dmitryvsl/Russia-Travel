@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.getBackStackEntry
 import androidx.navigation.compose.navigate
+import androidx.navigation.compose.popUpTo
 import com.example.russiatravel.R
 import com.example.russiatravel.ui.Route
 import com.example.russiatravel.ui.components.FilledButton
@@ -29,7 +31,7 @@ import com.example.russiatravel.ui.theme.ColorWhiteDark
 @ExperimentalAnimationApi
 @Composable
 fun WelcomeScreen(
-    navController: NavController,
+    onUserLogin: () -> Unit,
     onButtonClick: (ScreenFragment) -> Unit
 ) {
     Column(
@@ -91,7 +93,7 @@ fun WelcomeScreen(
                 backgroundColor = ColorBlueDark,
                 contentColor = Color.White,
             ),
-            onClick = { navController.navigate(Route.Filter.id) }
+            onClick = {onUserLogin()}
         )
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import com.example.russiatravel.R
@@ -30,15 +31,15 @@ import com.example.russiatravel.ui.theme.ColorBlueDark
 
 @ExperimentalAnimationApi
 @Composable
-fun StartScreen(navController: NavController) {
-
+fun StartScreen(
+    userLoggedIn: () -> Unit
+) {
     var currentScreen by remember { mutableStateOf(ScreenFragment.Welcome) }
     var semiCurrentScreen: ScreenFragment by remember { mutableStateOf(ScreenFragment.Welcome) }
     val transitionData = updateTransitionData(semiCurrentScreen)
-
-    val surface by animateDpAsState(
-        targetValue = transitionData.size,
-        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+    val surfaceAnimationOnScreenChange by animateDpAsState(
+        targetValue = transitionData.size ,
+        animationSpec = tween(durationMillis = 300, easing = LinearEasing),
         finishedListener = {
             currentScreen = semiCurrentScreen
         }
@@ -52,49 +53,49 @@ fun StartScreen(navController: NavController) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(surface),
+                .height(surfaceAnimationOnScreenChange),
             color = transitionData.surfaceColor,
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp)
         ) {
             if (semiCurrentScreen == currentScreen) {
                 when (currentScreen) {
-                    ScreenFragment.Welcome -> WelcomeScreen(navController) {
+                    ScreenFragment.Welcome -> WelcomeScreen(userLoggedIn) {
                         semiCurrentScreen = it
                     }
-                    ScreenFragment.CreateAccount -> CreateAccountScreen(navController) {
-                        semiCurrentScreen = it
-                    }
-                    ScreenFragment.Login -> LoginScreen(navController) {
-                        semiCurrentScreen = it
-                    }
+                    ScreenFragment.CreateAccount -> CreateAccountScreen(
+                        onUserLogin =  userLoggedIn,
+                        onHaveAccountButtonClick = {semiCurrentScreen = it}
+                    )
+                    ScreenFragment.Login -> LoginScreen(
+                        onUserLogin = userLoggedIn,
+                        onCreateAccountButtonClick = {semiCurrentScreen = it}
+                    )
                 }
             }
         }
-
-
     }
 }
 
 @Composable
 private fun updateTransitionData(screenFragment: ScreenFragment): TransitionData {
-    val transition = updateTransition(screenFragment, label = "")
-    val bgColor = transition.animateColor(label = "") { state ->
+    val transition = updateTransition(screenFragment, label = "start screen animation")
+    val bgColor = transition.animateColor(label = "bg color transition") { state ->
         when (state) {
             ScreenFragment.Welcome -> Color.White
             ScreenFragment.CreateAccount, ScreenFragment.Login -> ColorBlueDark
         }
     }
-    val surfaceColor = transition.animateColor(label = "") { state ->
+    val surfaceColor = transition.animateColor(label = "surface color animation") { state ->
         when (state) {
             ScreenFragment.Welcome -> ColorBlueDark
             ScreenFragment.CreateAccount, ScreenFragment.Login -> Color.White
         }
     }
-    val size = transition.animateDp(label = "") { state ->
+    val size = transition.animateDp(label = "surface height animation") { state ->
         when (state) {
             ScreenFragment.Welcome -> 300.dp
             ScreenFragment.CreateAccount -> 600.dp
-            ScreenFragment.Login -> 450.dp
+            ScreenFragment.Login -> 500.dp
         }
     }
     return remember(transition) { TransitionData(bgColor, surfaceColor, size) }

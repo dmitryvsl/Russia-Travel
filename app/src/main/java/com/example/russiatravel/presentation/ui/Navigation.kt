@@ -18,7 +18,6 @@ import com.example.russiatravel.ui.login.StartScreen
 import com.example.russiatravel.ui.login.WelcomeScreen
 
 sealed class Route(val id: String) {
-    object Start : Route("start")
     object Filter : Route("filter")
 }
 
@@ -26,10 +25,13 @@ sealed class Route(val id: String) {
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "start") {
+    NavHost(navController = navController, startDestination = Route.Filter.id) {
 
         Route::class.sealedSubclasses.forEach { route ->
             composable(route.objectInstance!!.id) { Contents(it, navController) }
+        }
+        composable(Route.Filter.id){
+            Contents(it, navController )
         }
 
     }
@@ -41,7 +43,6 @@ fun NavGraph() {
 fun Contents(route: NavBackStackEntry, navController: NavController) {
     Crossfade(targetState = route) {
         when (it.arguments?.getString(KEY_ROUTE)) {
-            Route.Start.id -> StartScreen(navController)
             Route.Filter.id -> FilterScreen(navController)
             else -> Text("UNKNOWN PAGE")
         }

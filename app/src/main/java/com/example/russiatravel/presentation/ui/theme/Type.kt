@@ -24,7 +24,11 @@ val Typography = Typography(
         )
     ),
     body1 = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = FontFamily(
+            Font(
+                resId = R.font.ptsans_regular
+            )
+        ),
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
     ),
@@ -32,7 +36,7 @@ val Typography = Typography(
         fontSize = 16.sp,
         fontFamily = FontFamily(
             Font(
-                resId = R.font.cousine_regular,
+                resId = R.font.comfortaa_light,
                 weight = FontWeight.Normal,
                 style = FontStyle.Normal
             )

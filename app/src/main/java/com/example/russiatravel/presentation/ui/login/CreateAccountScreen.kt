@@ -20,22 +20,26 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
+import com.example.russiatravel.presentation.ui.components.ErrorDialog
+import com.example.russiatravel.presentation.ui.components.LoadingDialog
 import com.example.russiatravel.ui.Route
 import com.example.russiatravel.ui.components.CustomTextField
 import com.example.russiatravel.ui.components.FilledButton
 import com.example.russiatravel.ui.theme.ColorBlueDark
 import com.example.russiatravel.ui.theme.ColorWhiteDark
+import com.example.russiatravel.viewModel.StartScreenViewModel
 import java.util.regex.Pattern
 
 @ExperimentalAnimationApi
 @Composable
 fun CreateAccountScreen(
-    navController: NavController,
-    onHaveAccountButtonClick: (ScreenFragment) -> Unit
+    onUserLogin: () -> Unit,
+    onHaveAccountButtonClick: (ScreenFragment) -> Unit,
+    viewModel: StartScreenViewModel = hiltNavGraphViewModel()
 ) {
-
     var nameValue by remember { mutableStateOf("") }
     var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
@@ -46,6 +50,17 @@ fun CreateAccountScreen(
     var passwordError by remember { mutableStateOf(false) }
     var confirmPasswordError by remember { mutableStateOf(false) }
     var isScreenVisible by remember { mutableStateOf(true) }
+
+    if (viewModel.loadError.value != ""){
+        ErrorDialog (viewModel.loadError.value) {viewModel.loadError.value = ""} // Показывает окно ошибки
+    }
+    if (viewModel.isLoading.value){
+        LoadingDialog() // Показывает окно загрузки
+    }
+    if (viewModel.token.value != ""){
+        onUserLogin () // Метод вызова смены экрана. Срабатывает когда с сервера приходит токен
+    }
+
     AnimatedVisibility(
         isScreenVisible,
         initiallyVisible = false,
@@ -79,7 +94,7 @@ fun CreateAccountScreen(
                 icon = Icons.Filled.AccountCircle,
                 isError = nameError,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            ) { if (nameValue.length + 1 <= 30) nameValue = it }
+            ) { if (it.length <= 30) nameValue = it }
 
             CharacterCountOrErrorText(
                 text = "Пустое поле!",
@@ -94,7 +109,7 @@ fun CreateAccountScreen(
                 icon = Icons.Filled.Email,
                 isError = emailError,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            ) { if (emailValue.length + 1 <= 50) emailValue = it }
+            ) { if (it.length <= 50) emailValue = it }
 
             CharacterCountOrErrorText(
                 text = "Неправильный E-mail",
@@ -110,7 +125,7 @@ fun CreateAccountScreen(
                 isError = passwordError,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-            ) { if (passwordValue.length + 1 <= 30) passwordValue = it }
+            ) { if (it.length <= 30) passwordValue = it }
 
             CharacterCountOrErrorText(
                 text = "Пустое поле!",
@@ -125,7 +140,7 @@ fun CreateAccountScreen(
                 icon = Icons.Filled.LockOpen,
                 isError = confirmPasswordError,
                 visualTransformation = PasswordVisualTransformation(),
-            ) { if (confirmPasswordValue.length + 1 <= 30) confirmPasswordValue = it }
+            ) { if (it.length <= 30) confirmPasswordValue = it }
 
             CharacterCountOrErrorText(
                 text = if (passwordValue.isBlank()) "Пустое поле!" else "Пароли не совпадают!",
@@ -148,7 +163,7 @@ fun CreateAccountScreen(
                     confirmPasswordValue.isBlank() || passwordValue != confirmPasswordValue
 
                 if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
-                    navController.navigate(Route.Filter.id)
+                    viewModel.createAccount(nameValue, emailValue, passwordValue)
                 }
             }
 
