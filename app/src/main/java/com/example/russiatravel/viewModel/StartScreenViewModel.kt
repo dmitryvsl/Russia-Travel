@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.russiatravel.cache.SharedPreferences
 import com.example.russiatravel.network.DataState
 import com.example.russiatravel.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,9 +27,8 @@ class StartScreenViewModel @Inject constructor(
             when (val result = repository.authUser(login, password)){
                 is DataState.Success -> {
                     isLoading.value = false
-                    loadError.value = ""
                     token.value = result.data.toString()
-                    //TODO Добавить токен в бд
+                    SharedPreferences.saveToken(token = token.value)
                 }
                 is DataState.Error ->{
                     loadError.value = result.error!!
@@ -46,7 +46,7 @@ class StartScreenViewModel @Inject constructor(
                     isLoading.value = false
                     loadError.value = ""
                     token.value = result.data.toString()
-                    //TODO Добавить токен в бд
+                    SharedPreferences.saveToken(token = token.value)
                 }
                 is DataState.Error ->{
                     loadError.value = result.error!!

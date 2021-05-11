@@ -11,5 +11,8 @@ data class ResponseWrapper<T>(
     var statusId: Int,
 
     @SerializedName("detail")
-    var detail: T
+    var detail: T,
+
+    @SerializedName ("error")
+    var error: String
 )

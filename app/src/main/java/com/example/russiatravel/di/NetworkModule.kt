@@ -1,6 +1,8 @@
 package com.example.russiatravel.di
 
 import com.example.russiatravel.network.RetrofitService
+import com.example.russiatravel.repository.LocationRepository
+import com.example.russiatravel.repository.SightRepository
 import com.example.russiatravel.repository.UserRepository
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -50,7 +52,7 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideRetrofitService(): RetrofitService{
+    fun provideRetrofitService(): RetrofitService {
         return Retrofit.Builder()
             .baseUrl("http://guiderapi.ru/api/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -58,9 +60,5 @@ class NetworkModule {
             .build()
             .create(RetrofitService::class.java)
     }
-
-    @Singleton
-    @Provides
-    fun provideAuthRepository(retrofitService: RetrofitService) = UserRepository (retrofitService)
 
 }
