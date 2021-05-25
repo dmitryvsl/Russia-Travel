@@ -20,7 +20,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.russiatravel.ui.theme.ColorBlueDark
 import com.example.russiatravel.ui.theme.ColorRed
 
 
@@ -33,21 +36,26 @@ fun TabBar(
     tabPage: TabPage,
     onTabSelected: (tabPage: TabPage) -> Unit
 ) {
-    TabRow(
-        backgroundColor = Color.Transparent,
-        selectedTabIndex = tabPage.ordinal,
-        indicator = { tabPositions ->
-            TabIndicator(tabPositions, tabPage)
-        }
+    Box(
+        modifier = Modifier
+            .background(color = Color.White, shape = RoundedCornerShape(10.dp))
     ){
-        Tab(
-            title = "Дикий",
-            onClick = {onTabSelected(TabPage.Wild)}
-        )
-        Tab(
-            title = "Цивилизованный",
-            onClick = {onTabSelected(TabPage.Civilly)}
-        )
+        TabRow(
+            backgroundColor = Color.Transparent,
+            selectedTabIndex = tabPage.ordinal,
+            indicator = { tabPositions ->
+                TabIndicator(tabPositions, tabPage)
+            }
+        ){
+            Tab(
+                title = "Дикий",
+                onClick = {onTabSelected(TabPage.Wild)}
+            )
+            Tab(
+                title = "Цивилизованный",
+                onClick = {onTabSelected(TabPage.Civilly)}
+            )
+        }
     }
 }
 
@@ -93,7 +101,7 @@ fun TabIndicator(
             .padding(4.dp)
             .fillMaxSize()
             .border(
-                BorderStroke(2.dp, ColorRed),
+                BorderStroke(2.dp, ColorBlueDark),
                 RoundedCornerShape(10.dp)
             )
     )
@@ -108,12 +116,11 @@ fun Tab(
     Row(
         modifier = modifier
             .clickable(onClick = onClick)
-            .padding(16.dp),
+            .padding(8.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ){
         Text(text = title, style = MaterialTheme.typography.button)
     }
 }
-
 

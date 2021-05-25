@@ -22,12 +22,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
-import com.example.russiatravel.ui.Route
+import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.ui.theme.ColorBlueDark
 import com.example.russiatravel.viewModel.SightViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 
-@ExperimentalAnimationApi
 @Composable
 fun SightList(
     navController: NavController,
@@ -56,7 +55,7 @@ fun SightList(
                         modifier = Modifier
                             .fillMaxSize()
                             .height(200.dp)
-                            .padding(16.dp)
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
                     ) {
                         Box(
                             Modifier

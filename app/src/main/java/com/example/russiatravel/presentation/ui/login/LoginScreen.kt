@@ -1,51 +1,39 @@
 package com.example.russiatravel.ui.login
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import com.example.russiatravel.R
 import com.example.russiatravel.ui.theme.ColorBlueDark
-import com.example.russiatravel.ui.theme.ColorBrown
-import com.example.russiatravel.ui.theme.ColorWhiteDark
-import androidx.compose.material.Icon
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.navigate
-import com.example.russiatravel.cache.SharedPreferences
+import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.presentation.ui.components.ErrorDialog
 import com.example.russiatravel.presentation.ui.components.LoadingDialog
-import com.example.russiatravel.ui.Route
 import com.example.russiatravel.ui.components.CustomTextField
 import com.example.russiatravel.ui.components.FilledButton
 import com.example.russiatravel.viewModel.StartScreenViewModel
 
-@ExperimentalAnimationApi
+@SuppressLint("RestrictedApi")
+@OptIn( ExperimentalAnimationApi::class)
 @Composable
 fun LoginScreen(
-    onUserLogin: () -> Unit,
+    navController: NavController,
     onCreateAccountButtonClick: (ScreenFragment) -> Unit,
     viewModel: StartScreenViewModel = hiltNavGraphViewModel()
 ) {
@@ -55,7 +43,6 @@ fun LoginScreen(
     val spacerHeight = 20.dp
     var isScreenVisible by remember { mutableStateOf(true) }
 
-
     if (viewModel.loadError.value != ""){
         ErrorDialog (viewModel.loadError.value) {viewModel.loadError.value = ""} // Показывает окно ошибки
     }
@@ -63,9 +50,9 @@ fun LoginScreen(
         LoadingDialog() // Показывает окно загрузки
     }
     if (viewModel.token.value != ""){
-        onUserLogin () // Метод вызова смены экрана. Срабатывает когда с сервера приходит токен
+        navController.backStack.removeLast()
+        navController.navigate(Route.Filter.id)
     }
-
 
     AnimatedVisibility(visible = isScreenVisible,
         initiallyVisible = false,
@@ -160,7 +147,10 @@ fun LoginScreen(
                     backgroundColor = ColorBlueDark,
                     contentColor = Color.White,
                 ),
-                onClick = { onUserLogin () }
+                onClick = {
+                    navController.backStack.removeLast()
+                    navController.navigate(Route.Filter.id)
+                }
             )
 
             Spacer(Modifier.height(spacerHeight))

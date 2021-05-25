@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.Dp
@@ -23,20 +22,18 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
+import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.presentation.ui.components.ErrorDialog
 import com.example.russiatravel.presentation.ui.components.LoadingDialog
-import com.example.russiatravel.ui.Route
 import com.example.russiatravel.ui.components.CustomTextField
 import com.example.russiatravel.ui.components.FilledButton
 import com.example.russiatravel.ui.theme.ColorBlueDark
-import com.example.russiatravel.ui.theme.ColorWhiteDark
 import com.example.russiatravel.viewModel.StartScreenViewModel
-import java.util.regex.Pattern
 
-@ExperimentalAnimationApi
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CreateAccountScreen(
-    onUserLogin: () -> Unit,
+    navController: NavController,
     onHaveAccountButtonClick: (ScreenFragment) -> Unit,
     viewModel: StartScreenViewModel = hiltNavGraphViewModel()
 ) {
@@ -58,7 +55,8 @@ fun CreateAccountScreen(
         LoadingDialog() // Показывает окно загрузки
     }
     if (viewModel.token.value != ""){
-        onUserLogin () // Метод вызова смены экрана. Срабатывает когда с сервера приходит токен
+        navController.backStack.removeLast()
+        navController.navigate(Route.Filter.id)
     }
 
     AnimatedVisibility(
@@ -75,8 +73,6 @@ fun CreateAccountScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-
-
             Text(
                 "Создать аккаунт",
                 style = MaterialTheme.typography.subtitle1.copy(color = ColorBlueDark)

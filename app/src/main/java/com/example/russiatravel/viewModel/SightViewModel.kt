@@ -37,8 +37,9 @@ class SightViewModel @Inject constructor(
                     _sights.postValue(result.data)
                 }
                 is DataState.Error -> {
+                    Log.d("SightViewModel", result.error!!)
                     isLoading.value = false
-                    loadError.value = result.error!!
+                    loadError.value = result.error
                 }
             }
         }

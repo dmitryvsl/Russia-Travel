@@ -12,6 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RussiaTravel">
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDPAWGfdsy1KxMUOMc6D8R4WzI1bMBklms"/>
+
         <activity
             android:name=".ui.MainActivity"
             android:exported="true"

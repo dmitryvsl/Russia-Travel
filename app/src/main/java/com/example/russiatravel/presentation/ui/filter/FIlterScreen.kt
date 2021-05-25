@@ -1,14 +1,6 @@
-package com.example.russiatravel.ui.filter
+package com.example.russiatravel.presentation.ui.filter
 
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -20,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,25 +19,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.navigate
 import com.example.russiatravel.R
 import com.example.russiatravel.network.model.LocationResponse
 import com.example.russiatravel.presentation.ui.RussiaTravelApplication
-import com.example.russiatravel.presentation.ui.filter.DrawerContent
-import com.example.russiatravel.presentation.ui.filter.TabBar
-import com.example.russiatravel.presentation.ui.filter.TabPage
-import com.example.russiatravel.presentation.ui.filter.TopBar
-import com.example.russiatravel.ui.Route
+import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.ui.components.FilledButton
 import com.example.russiatravel.ui.theme.ColorBlueDark
 import com.example.russiatravel.viewModel.LocationViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun FilterScreen(
     navController: NavController,
-    viewModel: LocationViewModel = hiltNavGraphViewModel()
+viewModel: LocationViewModel = hiltNavGraphViewModel()
 ) {
     viewModel.fetchRegions() // Загрузить список регионов
     // Строковые ресурсы
@@ -58,7 +43,7 @@ fun FilterScreen(
     // массивы для спинеров
     val itemsRegions = viewModel.regions.observeAsState()
     val itemsLocalities = viewModel.localities.observeAsState()
-    // раскрыть спиннер
+    // показать элементы спинера
     var expandedRegion: Boolean by remember { mutableStateOf(false) }
     var expandedLocality: Boolean by remember { mutableStateOf(false) }
     // выбранный таб
@@ -196,11 +181,11 @@ fun Spinner(
                     }
                 ) {
                     Text(
-                        item.name,
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        text = item.name,
                         style = MaterialTheme.typography.button.copy(color = Color.Black)
                     )
                 }
-
             }
             if (items == null){
                 CircularProgressIndicator(color = ColorBlueDark)
@@ -208,4 +193,3 @@ fun Spinner(
         }
     }
 }
-

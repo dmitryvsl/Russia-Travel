@@ -24,18 +24,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import com.example.russiatravel.R
 import com.example.russiatravel.ui.theme.ColorBlueDark
 
-@ExperimentalAnimationApi
 @Composable
-fun StartScreen(
-    userLoggedIn: () -> Unit
-) {
+fun StartScreen(navController: NavController) {
+
     var currentScreen by remember { mutableStateOf(ScreenFragment.Welcome) }
     var semiCurrentScreen: ScreenFragment by remember { mutableStateOf(ScreenFragment.Welcome) }
+
     val transitionData = updateTransitionData(semiCurrentScreen)
     val surfaceAnimationOnScreenChange by animateDpAsState(
         targetValue = transitionData.size ,
@@ -44,6 +44,7 @@ fun StartScreen(
             currentScreen = semiCurrentScreen
         }
     )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -59,15 +60,15 @@ fun StartScreen(
         ) {
             if (semiCurrentScreen == currentScreen) {
                 when (currentScreen) {
-                    ScreenFragment.Welcome -> WelcomeScreen(userLoggedIn) {
+                    ScreenFragment.Welcome -> WelcomeScreen(navController) {
                         semiCurrentScreen = it
                     }
                     ScreenFragment.CreateAccount -> CreateAccountScreen(
-                        onUserLogin =  userLoggedIn,
+                        navController = navController,
                         onHaveAccountButtonClick = {semiCurrentScreen = it}
                     )
                     ScreenFragment.Login -> LoginScreen(
-                        onUserLogin = userLoggedIn,
+                        navController = navController,
                         onCreateAccountButtonClick = {semiCurrentScreen = it}
                     )
                 }
@@ -77,7 +78,7 @@ fun StartScreen(
 }
 
 @Composable
-private fun updateTransitionData(screenFragment: ScreenFragment): TransitionData {
+private fun updateTransitionData( screenFragment: ScreenFragment): TransitionData {
     val transition = updateTransition(screenFragment, label = "start screen animation")
     val bgColor = transition.animateColor(label = "bg color transition") { state ->
         when (state) {
