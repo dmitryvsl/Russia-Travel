@@ -20,14 +20,14 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.navigate
+import com.example.russiatravel.cache.SharedPreferences
 import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.presentation.ui.components.ErrorDialog
 import com.example.russiatravel.presentation.ui.components.LoadingDialog
 import com.example.russiatravel.ui.components.CustomTextField
 import com.example.russiatravel.ui.components.FilledButton
-import com.example.russiatravel.viewModel.StartScreenViewModel
+import com.example.russiatravel.viewModel.UserViewModel
 
 @SuppressLint("RestrictedApi")
 @OptIn( ExperimentalAnimationApi::class)
@@ -35,7 +35,7 @@ import com.example.russiatravel.viewModel.StartScreenViewModel
 fun LoginScreen(
     navController: NavController,
     onCreateAccountButtonClick: (ScreenFragment) -> Unit,
-    viewModel: StartScreenViewModel = hiltNavGraphViewModel()
+    viewModel: UserViewModel = hiltNavGraphViewModel()
 ) {
 
     var emailValue by remember { mutableStateOf("") }
@@ -44,10 +44,10 @@ fun LoginScreen(
     var isScreenVisible by remember { mutableStateOf(true) }
 
     if (viewModel.loadError.value != ""){
-        ErrorDialog (viewModel.loadError.value) {viewModel.loadError.value = ""} // Показывает окно ошибки
+        ErrorDialog (viewModel.loadError.value) {viewModel.loadError.value = ""}
     }
     if (viewModel.isLoading.value){
-        LoadingDialog() // Показывает окно загрузки
+        LoadingDialog()
     }
     if (viewModel.token.value != ""){
         navController.backStack.removeLast()
@@ -150,6 +150,7 @@ fun LoginScreen(
                 onClick = {
                     navController.backStack.removeLast()
                     navController.navigate(Route.Filter.id)
+                    SharedPreferences.saveGuest()
                 }
             )
 

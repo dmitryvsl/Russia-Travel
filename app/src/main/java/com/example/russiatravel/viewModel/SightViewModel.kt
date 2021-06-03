@@ -7,12 +7,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.russiatravel.network.DataState
+import com.example.russiatravel.network.model.Feedback
 import com.example.russiatravel.network.model.LocationResponse
+import com.example.russiatravel.network.model.RouteResponse
 import com.example.russiatravel.network.model.Sight
 import com.example.russiatravel.repository.SightRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+
+enum class FeedbackStatus{
+    ERROR, SUCCESS
+}
 
 @HiltViewModel
 class SightViewModel @Inject constructor(
@@ -24,6 +31,15 @@ class SightViewModel @Inject constructor(
 
     val sight: LiveData<Sight> get() = _sight
     private var _sight: MutableLiveData<Sight> = MutableLiveData()
+
+    val feedback: LiveData<Feedback> get() = _feedback
+    private var _feedback: MutableLiveData<Feedback> = MutableLiveData()
+
+    val route: LiveData<RouteResponse> get() = _route
+    private var _route: MutableLiveData<RouteResponse> = MutableLiveData()
+
+    val addFeedbackState: LiveData<FeedbackStatus> get() = _addFeedbackState
+    private var _addFeedbackState: MutableLiveData<FeedbackStatus> = MutableLiveData()
 
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
@@ -45,20 +61,93 @@ class SightViewModel @Inject constructor(
         }
     }
 
+    fun fetchSights(latitude: Float, longitude: Float) {
+        viewModelScope.launch {
+            isLoading.value = true
+            when (val result = sightRepository.fetchNearSights(latitude, longitude)) {
+                is DataState.Success -> {
+                    isLoading.value = false
+                    _sights.postValue(result.data)
+                }
+                is DataState.Error -> {
+                    Log.d("SightViewModel", result.error!!)
+                    isLoading.value = false
+                    loadError.value = result.error
+                }
+            }
+        }
+    }
+
     fun getSightDetail(sightId: Int) {
         viewModelScope.launch {
             isLoading.value = true
             when (val result = sightRepository.getSight(sightId)) {
                 is DataState.Success -> {
+                    Log.d("SUCCESS", "DATA GOT")
                     isLoading.value = false
                     _sight.postValue(result.data)
                 }
                 is DataState.Error -> {
+                    Log.d("ERROR", result.error!!)
                     isLoading.value = false
                     loadError.value = result.error!!
                 }
             }
         }
     }
+
+    fun getRoute(origin: String, destination: String){
+        viewModelScope.launch {
+            isLoading.value = true
+            when (val result = sightRepository.getRoute(origin, destination)){
+                is DataState.Success -> {
+                    Log.d("ViewModel", "Success")
+                    isLoading.value = false
+                    _route.postValue(result.data)
+                }
+                is DataState.Error -> {
+                    Log.d("ViewModel", "Error")
+                    isLoading.value = false
+                    loadError.value = result.error!!
+                }
+            }
+        }
+    }
+
+    fun getFeedbacks(sightId: Int){
+        viewModelScope.launch {
+            isLoading.value = true
+            when (val result = sightRepository.getFeedbacks(sightId)){
+                is DataState.Success -> {
+                    Log.d("ViewModel", "Success")
+                    isLoading.value = false
+                    _feedback.postValue(result.data)
+                }
+                is DataState.Error -> {
+                    Log.d("ViewModel", "Error")
+                    isLoading.value = false
+                    loadError.value = result.error!!
+                }
+            }
+        }
+    }
+
+    fun addFeedback(sightId: Int, rating: Int, token: String, feedback: String){
+        viewModelScope.launch {
+            isLoading.value = true
+            when (sightRepository.addFeedback(sightId, rating, feedback, token)){
+                is DataState.Success -> {
+                    isLoading.value = false
+                    _addFeedbackState.postValue(FeedbackStatus.SUCCESS)
+                }
+                is DataState.Error -> {
+                    isLoading.value = false
+                    _addFeedbackState.postValue(FeedbackStatus.ERROR)
+                }
+            }
+        }
+    }
+
+
 
 }

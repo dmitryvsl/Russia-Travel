@@ -1,69 +1,60 @@
 package com.example.russiatravel.presentation.ui.sight
 
-import android.net.Uri
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.navigate
 import com.example.russiatravel.R
 import com.example.russiatravel.ui.theme.*
 import com.example.russiatravel.utils.rememberMapViewWithLifecycle
 import com.example.russiatravel.utils.setZoom
 import com.example.russiatravel.viewModel.SightViewModel
-import com.google.accompanist.coil.rememberCoilPainter
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.toPaddingValues
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Log
-import com.google.android.exoplayer2.util.Util
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.MapView
-import com.google.android.libraries.maps.model.LatLng
 import com.google.maps.android.ktx.addMarker
 import com.google.maps.android.ktx.awaitMap
 import kotlinx.coroutines.launch
-import me.onebone.toolbar.AppBarContainer
-import me.onebone.toolbar.CollapsingToolbar
-import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarState
-import kotlin.math.roundToInt
+import com.akexorcist.googledirection.GoogleDirection
+import com.akexorcist.googledirection.constant.TransportMode
+import com.akexorcist.googledirection.model.Direction
+import com.akexorcist.googledirection.util.DirectionConverter
+import com.akexorcist.googledirection.util.execute
+import com.example.russiatravel.cache.SharedPreferences
+import com.example.russiatravel.network.model.Feedback
+import com.example.russiatravel.network.model.FeedbackItem
+import com.example.russiatravel.presentation.ui.Route
+import com.example.russiatravel.presentation.ui.RussiaTravelApplication
+import com.example.russiatravel.presentation.ui.components.LoadingDialog
+import com.google.accompanist.coil.rememberCoilPainter
+import com.google.android.libraries.maps.model.MarkerOptions
+import com.google.android.libraries.maps.GoogleMap
+import com.google.android.libraries.maps.model.LatLng
+import com.google.android.libraries.maps.model.PolylineOptions
 
 enum class Tab {
     Map, Feedback
@@ -81,195 +72,263 @@ fun SightDetail(
     sightId: Int,
     viewModel: SightViewModel = hiltNavGraphViewModel()
 ) {
-    /*var isRequestSent by remember { mutableStateOf (false) }
-    if (!isRequestSent) {
-        isRequestSent = true
-        viewModel.getSightDetail(1)
+    var isRequestSent = remember(LocalContext.current) {
+        viewModel.getSightDetail(sightId)
+        viewModel.getFeedbacks(sightId)
+        true
     }
-    val sight = viewModel.sight.observeAsState()*/
 
-    val images = listOf(
-        R.drawable.sarva,
-        R.drawable.sarva2,
-        R.drawable.sarva3,
-        R.drawable.sarva4
-    )
+    var isBookmarkAdded by remember { mutableStateOf(false)}
 
-    var currentImage by remember { mutableStateOf(images[0]) }
+    val sight = viewModel.sight.observeAsState()
+    val feedbacks = viewModel.feedback.observeAsState()
 
-    val scrollState = rememberScrollState()
-    Log.d("scrollState", scrollState.value.toString())
-    val text = "Озеро Сарва расположилось в Нуримановском районе, рядом с одноименным поселком." +
-            " Это небольшое родниковое озеро, длина и ширина которого составляют 60 и 30 метров соответственно. " +
-            "Максимальная глубина достигает 38 метров. Дно озера крутое, практически отвесное (поскольку глубина значительно превышает ширину)."
-    var selectedTab: Tabs by remember { mutableStateOf(Tabs.Map) }
-    val selectedTabIndex = when (selectedTab) {
-        Tabs.Map -> 0
-        Tabs.Feedback -> 1
-    }
-    val columnState = rememberLazyListState()
-    val scaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+    sight.value?.let {
+        Log.d("SightDetail", it.id.toString())
+        var currentImage by remember { mutableStateOf(it.images[0]) }
 
-    val modifier = Modifier.padding(horizontal = 16.dp)
-    BackdropScaffold(
-        appBar = {},
-        scaffoldState = scaffoldState,
-        backLayerBackgroundColor = Color.White,
-        frontLayerScrimColor = Color.Transparent,
-        backLayerContent = {
-            ImageStack(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp),
-                images = images,
-                currentImage = currentImage
-            ) {
-                currentImage = it
-            }
-        },
-        frontLayerContent = {
-            LazyColumn(
-                state = columnState
-            ) {
-                item { Spacer(Modifier.height(8.dp)) }
-                item {
-                    Text(
-                        "Озеро Сарва",
-                        modifier.fillMaxWidth(),
-                        style = MaterialTheme.typography.subtitle2
-                    )
-                }
+        var selectedRating by remember { mutableStateOf(0) }
 
-                item { Spacer(Modifier.height(8.dp)) }
+        var selectedTab: Tabs by remember { mutableStateOf(Tabs.Map) }
+        val selectedTabIndex = when (selectedTab) {
+            Tabs.Map -> 0
+            Tabs.Feedback -> 1
+        }
+        val columnState = rememberLazyListState()
+        val scaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
 
-                item { RatingBar(modifier = modifier,rating = 3) }
+        val modifier = Modifier.padding(horizontal = 16.dp)
 
-                item { Spacer(Modifier.height(8.dp)) }
-
-                item {
-                    Row(
-                        modifier = modifier.offset((-4).dp, 0.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.Place,
-                            null,
-                            tint = ColorGray
+        BackdropScaffold(
+            appBar = {},
+            scaffoldState = scaffoldState,
+            backLayerBackgroundColor = Color.White,
+            frontLayerScrimColor = Color.Transparent,
+            backLayerContent = {
+                ImageStack(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(400.dp),
+                    images = it.images,
+                    currentImage = currentImage,
+                    isBookmarkAdded = isBookmarkAdded,
+                    onImageClick = { currentImage = it },
+                    onBackIconClick = {  navController.navigateUp()},
+                    onBookmarkIconClick = { isBookmarkAdded = !isBookmarkAdded }
+                )
+            },
+            frontLayerContent = {
+                LazyColumn(
+                    state = columnState
+                ) {
+                    item { Spacer(Modifier.height(8.dp)) }
+                    item {
+                        Text(
+                            it.title,
+                            modifier.fillMaxWidth(),
+                            style = MaterialTheme.typography.subtitle2
                         )
-                        Text("РБ, Нуримановский район", style = MaterialTheme.typography.body1)
-
                     }
-                }
 
+                    item { Spacer(Modifier.height(8.dp)) }
 
-                item { Spacer(Modifier.height(8.dp))}
-                item {
-                    Text(
-                        modifier = modifier,
-                        text = text,
-                        style = MaterialTheme.typography.body1.copy(color = Color.Black),
-                        lineHeight = 1.37.em,
-                        letterSpacing = (-0.0241176).em,
-                        textAlign = TextAlign.Justify
-                    )
-                }
+                    item { RatingBar(modifier = modifier, rating = feedbacks.value?.totalRating ?: 0) }
 
-                item { Spacer(Modifier.height(8.dp)) }
+                    item { Spacer(Modifier.height(8.dp)) }
 
-                item {
-                    TabRow(
-                        modifier = modifier.fillMaxWidth(),
-                        backgroundColor = Color.Transparent,
-                        selectedTabIndex = selectedTabIndex,
-                        divider = {},
-                        indicator = { tabPositions ->
-                            TabRowDefaults.Indicator(
-                                Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
-                                color = ColorPurple
+                    item {
+                        Row(
+                            modifier = modifier.offset((-4).dp, 0.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Place,
+                                null,
+                                tint = ColorGray
                             )
-                        },
-                        tabs = {
-                            CustomTab(
-                                tab = Tabs.Map,
-                                selectedTab = selectedTab,
-                                onTabClick = { selectedTab = it }
-                            )
-                            CustomTab(
-                                tab = Tabs.Feedback,
-                                selectedTab = selectedTab,
-                                onTabClick = { selectedTab = it }
-                            )
+                            Text(it.location.toString(), style = MaterialTheme.typography.body1)
 
                         }
-                    )
-                }
+                    }
 
-                item {
-                    Box(Modifier.fillMaxWidth().height(500.dp)){
-                        MapView()
+                    item { Spacer(Modifier.height(8.dp)) }
+                    item {
+                        Text(
+                            modifier = modifier,
+                            text = it.description,
+                            style = MaterialTheme.typography.body1.copy(color = Color.Black),
+                            lineHeight = 1.37.em,
+                            letterSpacing = (-0.0241176).em,
+                            textAlign = TextAlign.Justify
+                        )
+                    }
+
+                    item { Spacer(Modifier.height(8.dp)) }
+
+                    item {
+                        TabRow(
+                            modifier = modifier.fillMaxWidth(),
+                            backgroundColor = Color.Transparent,
+                            selectedTabIndex = selectedTabIndex,
+                            divider = {},
+                            indicator = { tabPositions ->
+                                TabRowDefaults.Indicator(
+                                    Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                                    color = ColorPurple
+                                )
+                            },
+                            tabs = {
+                                CustomTab(
+                                    tab = Tabs.Map,
+                                    selectedTab = selectedTab,
+                                    onTabClick = { selectedTab = it }
+                                )
+                                CustomTab(
+                                    tab = Tabs.Feedback,
+                                    selectedTab = selectedTab,
+                                    onTabClick = { selectedTab = it }
+                                )
+
+                            }
+                        )
+                    }
+
+                    item {
+                        when (selectedTab.id) {
+                            Tab.Map -> Box(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(500.dp)
+                            ) {
+                                MapView(it.latitude.toString(), it.longitude.toString())
+                            }
+                            Tab.Feedback -> FeedbackTab(
+                                selectedRating = selectedRating,
+                                feedback = feedbacks.value,
+                                onIconClick = {
+                                    selectedRating = it
+                                    if (!SharedPreferences.isGuest()) {
+                                        navController.navigate(Route.Feedback.id + "/$sightId/$selectedRating")
+                                    } else {
+                                        Toast.makeText(
+                                            RussiaTravelApplication.context,
+                                            "Необходимо авторизоваться, чтобы оставлять отзывы",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
-
-            }
-        },
-    )
+            },
+        )
+    } ?: Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ){
+        CircularProgressIndicator(color = ColorBlueDark)
+    }
 }
 
-
 @Composable
-fun ImageStack(
-    modifier: Modifier,
-    images: List<Int>,
-    currentImage: Int,
-    onImageClick: (Int) -> Unit
-) {
-    Box(
-        modifier = modifier,
-        contentAlignment = Alignment.BottomCenter
-    ) {
-        Image(
-            modifier = Modifier.fillMaxSize(),
-            painter = painterResource(currentImage),
-            contentDescription = null,
-            contentScale = ContentScale.Crop
-        )
-        LazyRow(
+fun FeedbackTab(selectedRating: Int, onIconClick: (Int) -> Unit, feedback: Feedback?) {
+    feedback?.let {
+        Column(
             Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp, start = 10.dp, end = 10.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+                .padding(vertical = 8.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            items(images) { image ->
-                Surface(
-                    modifier = Modifier
-                        .clickable { onImageClick(image) },
-                    shape = RoundedCornerShape(10.dp),
-                    border = BorderStroke(
-                        2.dp,
-                        if (image == currentImage) Color.White else ColorPurple
-                    )
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .size(80.dp),
-                        painter = painterResource(image),
-                        contentScale = ContentScale.Crop,
-                        contentDescription = null
-                    )
+            ClickableRatingBar(selectedRating, onIconClick)
+            Text("Были здесь? Напишите отзыв")
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+            ) {
+                Row {
+                    Text(it.totalRating.toString(), color = Color.Black)
+                    Spacer(Modifier.width(8.dp))
+                    RatingBar(modifier = Modifier, feedback.totalRating)
                 }
+                Text(
+                    it.totalCount.toString() + " " + wordEndSuffix(it.totalCount),
+                    color = Color.Black
+                )
             }
+
+            for (feedback in feedback.feedbacks) {
+                FeedbackRow(feedback)
+            }
+
+            Spacer(Modifier.height(24.dp))
+
         }
     }
 }
 
+fun wordEndSuffix(count: Int): String {
+    when {
+        count % 10 == 0 || count % 10 in 6..9 -> return "отзывов"
+        count % 10 == 1 -> return "отзыв"
+        count % 10 in 2..4 -> return "отзыва"
+        count % 100 in 11..19 -> return "отзывов"
+    }
+    return "отзыв"
+}
+
+@Composable
+fun FeedbackRow(feedback: FeedbackItem) {
+    Column(
+        Modifier
+            .padding(horizontal = 16.dp)
+            .fillMaxWidth()
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row {
+                Image(
+                    painter = rememberCoilPainter(feedback.photo),
+                    contentDescription = "avatar",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                )
+                Text(
+                    feedback.name,
+                    modifier = Modifier
+                        .align(Alignment.Top)
+                        .padding(start = 8.dp, top = 2.dp), color = Color.Black
+                )
+            }
+            RatingBar(modifier = Modifier, feedback.rating)
+        }
+
+        Text(
+            feedback.feedback,
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = Color.Black
+        )
+    }
+
+}
+
+
 @Composable
 fun MapView(
-    latitude: String = "54.740781",
-    longitude: String = "55.968402"
-){
+    latitude: String,
+    longitude: String
+) {
     val mapView = rememberMapViewWithLifecycle()
-    MapViewContainer(mapView, latitude , longitude)
+    MapViewContainer(mapView, latitude, longitude)
 }
+
 
 @Composable
 private fun MapViewContainer(
@@ -278,36 +337,40 @@ private fun MapViewContainer(
     longitude: String
 ) {
     var mapInitialized by remember(map) { mutableStateOf(false) }
+    LaunchedEffect(map, mapInitialized) {
+        if (!mapInitialized) {
+            val googleMap = map.awaitMap()
+            val position = LatLng(latitude.toDouble(), longitude.toDouble())
+            googleMap.addMarker {
+                position(position)
+            }
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(position))
+            mapInitialized = true
+        }
+    }
+
     var zoom by rememberSaveable(map) { mutableStateOf(InitialZoom) }
-    Log.d("Zoom", zoom.toString())
-    val coroutineScope = rememberCoroutineScope()
-    Column {
+
+
+    Column{
         ZoomControls(zoom) {
             zoom = it.coerceIn(MinZoom, MaxZoom)
         }
-        LaunchedEffect(map, mapInitialized) {
-            if (!mapInitialized) {
-                val googleMap = map.awaitMap()
-                val position = LatLng(latitude.toDouble(), longitude.toDouble())
-                googleMap.addMarker {
-                    position(position)
-                }
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(position))
-                mapInitialized = true
-            }
-        }
-        AndroidView({ map }) { mapView ->
+
+        val coroutineScope = rememberCoroutineScope()
+        AndroidView({ map }) {
             // Reading zoom so that AndroidView recomposes when it changes. The getMapAsync lambda
             // is stored for later, Compose doesn't recognize state reads
             val mapZoom = zoom
             coroutineScope.launch {
-                val googleMap = mapView.awaitMap()
+                val googleMap = map.awaitMap()
                 googleMap.setZoom(mapZoom)
             }
         }
     }
 
 }
+
 
 @Composable
 private fun ZoomControls(
@@ -339,24 +402,46 @@ const val MinZoom = 2f
 const val MaxZoom = 20f
 
 @Composable
-fun RatingBar(modifier:Modifier,rating: Int) {
+fun RatingBar(
+    modifier: Modifier,
+    rating: Int = 0,
+    iconSize: Dp = 22.dp,
+) {
     Row(modifier.offset(x = (-4).dp, 0.dp)) {
-        for (i in 0..4) {
-            if (rating > i) {
+        for (i in 1..5) {
+            if (rating >= i) {
                 Icon(
                     Icons.Default.StarRate,
                     null,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(iconSize),
                     tint = Color.Yellow
                 )
             } else {
                 Icon(
                     Icons.Default.StarOutline,
                     null,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(iconSize),
                     tint = Color.Yellow
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun ClickableRatingBar(rating: Int = 0, onIconClick: (Int) -> Unit) {
+    Row {
+        for (i in 1..5) {
+            Icon(
+                if (rating >= i) Icons.Default.Star else Icons.Default.StarOutline,
+                null,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clickable {
+                        onIconClick(i)
+                    },
+                tint = ColorBlueDark
+            )
         }
     }
 }

@@ -12,7 +12,6 @@ import javax.inject.Inject
 class LocationRepository @Inject constructor(
     private val retrofitService: RetrofitService
 ) {
-
     suspend fun fetchRegion(): DataState<List<LocationResponse>>{
         val response = try {
             retrofitService.fetchRegions()

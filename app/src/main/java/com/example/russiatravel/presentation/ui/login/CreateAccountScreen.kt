@@ -28,14 +28,14 @@ import com.example.russiatravel.presentation.ui.components.LoadingDialog
 import com.example.russiatravel.ui.components.CustomTextField
 import com.example.russiatravel.ui.components.FilledButton
 import com.example.russiatravel.ui.theme.ColorBlueDark
-import com.example.russiatravel.viewModel.StartScreenViewModel
+import com.example.russiatravel.viewModel.UserViewModel
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CreateAccountScreen(
     navController: NavController,
     onHaveAccountButtonClick: (ScreenFragment) -> Unit,
-    viewModel: StartScreenViewModel = hiltNavGraphViewModel()
+    viewModel: UserViewModel = hiltNavGraphViewModel()
 ) {
     var nameValue by remember { mutableStateOf("") }
     var emailValue by remember { mutableStateOf("") }
@@ -160,6 +160,7 @@ fun CreateAccountScreen(
 
                 if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
                     viewModel.createAccount(nameValue, emailValue, passwordValue)
+
                 }
             }
 

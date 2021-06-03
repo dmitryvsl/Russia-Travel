@@ -1,6 +1,7 @@
 package com.example.russiatravel.di
 
 import com.example.russiatravel.network.RetrofitService
+import com.example.russiatravel.network.RouteApi
 import com.example.russiatravel.repository.LocationRepository
 import com.example.russiatravel.repository.SightRepository
 import com.example.russiatravel.repository.UserRepository
@@ -59,6 +60,17 @@ class NetworkModule {
             .client(client)
             .build()
             .create(RetrofitService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun provideRouteApi() : RouteApi{
+        return Retrofit.Builder()
+            .baseUrl("https://maps.googleapis.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client)
+            .build()
+            .create(RouteApi::class.java)
     }
 
 }

@@ -15,8 +15,8 @@ import com.example.russiatravel.ui.theme.ColorLightGray
 // Set of Material typography styles to start with
 val Typography = Typography(
     subtitle1 = TextStyle(
-        color = Color.Black,
-        fontSize = 24.sp,
+        color = Color.White,
+        fontSize = 18.sp,
         fontFamily = FontFamily(
             Font(
                 resId = R.font.roboto_bold,
@@ -27,7 +27,7 @@ val Typography = Typography(
     ),
     subtitle2 = TextStyle(
         color = Color.Black,
-        fontSize = 24.sp,
+        fontSize = 18.sp,
         fontFamily = FontFamily(
             Font(
                 resId = R.font.roboto_regular,

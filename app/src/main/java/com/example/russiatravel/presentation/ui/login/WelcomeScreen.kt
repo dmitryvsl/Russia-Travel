@@ -10,9 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
+import com.example.russiatravel.cache.SharedPreferences
 import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.ui.components.FilledButton
 import com.example.russiatravel.ui.theme.ColorBlueDark
@@ -29,7 +29,7 @@ fun WelcomeScreen(navController: NavController, onButtonClick: (ScreenFragment) 
     ) {
         Text(
             "Добро пожаловать",
-            style = MaterialTheme.typography.subtitle1
+            style = MaterialTheme.typography.subtitle1.copy(color = Color.White)
         )
 
         Divider(
@@ -83,6 +83,7 @@ fun WelcomeScreen(navController: NavController, onButtonClick: (ScreenFragment) 
             onClick = {
                 navController.backStack.removeLast()
                 navController.navigate(Route.Filter.id)
+                SharedPreferences.saveGuest()
             }
         )
     }

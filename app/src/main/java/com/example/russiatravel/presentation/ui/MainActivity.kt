@@ -1,18 +1,23 @@
 package com.example.russiatravel.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 import com.example.russiatravel.R
 import com.example.russiatravel.cache.SharedPreferences
+import com.example.russiatravel.network.model.User
 import com.example.russiatravel.presentation.ui.NavGraph
 import com.example.russiatravel.presentation.ui.filter.DrawerContent
 import com.example.russiatravel.presentation.ui.filter.TopBar
@@ -29,9 +34,8 @@ class MainActivity : ComponentActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         window.navigationBarColor = ContextCompat.getColor(this, R.color.white);
-
         setContent {
-            ProvideWindowInsets (consumeWindowInsets = false) {
+            ProvideWindowInsets(consumeWindowInsets = false) {
                 RussiaTravelTheme(darkTheme = false) {
                     NavGraph()
                 }
@@ -39,6 +43,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
 
 
 

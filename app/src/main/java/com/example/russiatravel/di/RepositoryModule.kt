@@ -1,6 +1,7 @@
 package com.example.russiatravel.di
 
 import com.example.russiatravel.network.RetrofitService
+import com.example.russiatravel.network.RouteApi
 import com.example.russiatravel.repository.LocationRepository
 import com.example.russiatravel.repository.SightRepository
 import com.example.russiatravel.repository.UserRepository
@@ -24,5 +25,5 @@ object RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideSightRepository (retrofitService: RetrofitService) = SightRepository(retrofitService)
+    fun provideSightRepository (retrofitService: RetrofitService, routeApi: RouteApi) = SightRepository(retrofitService, routeApi)
 }
