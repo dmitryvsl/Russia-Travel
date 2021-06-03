@@ -22,6 +22,7 @@ fun ScaffoldDrawer(
     navController: NavController,
     icon: ImageVector = Icons.Default.Menu,
     showActions: Boolean = false,
+    onActionClicked: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     val scaffoldState = rememberScaffoldState(DrawerState(DrawerValue.Closed))
@@ -40,7 +41,8 @@ fun ScaffoldDrawer(
                 title = topBarTitle,
                 icon = icon,
                 showActions = showActions,
-                onButtonClicked = { if (icon == Icons.Default.Menu) openDrawer() else navController.navigateUp() }
+                onButtonClicked = { if (icon == Icons.Default.Menu) openDrawer() else navController.navigateUp() },
+                onActionClicked = onActionClicked
             )
         },
         drawerContent = { DrawerContent(navController) },

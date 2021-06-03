@@ -47,11 +47,9 @@ import java.security.Permission
 
 @Composable
 fun FilterScreen(
-    navController: NavController,
-    viewModel: LocationViewModel = hiltNavGraphViewModel()
+    navController: NavController
 ) {
 
-    viewModel.fetchRegions() // Загрузить список регионов
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -67,21 +65,6 @@ fun FilterScreen(
             }
         }
     }
-    // Строковые ресурсы
-    val region = stringResource(id = R.string.region)
-    val locality = stringResource(id = R.string.locality)
-    // Подсказки для спинеров выбора расположения
-    var regionValue by remember { mutableStateOf(region) }
-    var localityValue by remember { mutableStateOf(locality) }
-    // массивы для спинеров
-    val itemsRegions = viewModel.regions.observeAsState()
-    val itemsLocalities = viewModel.localities.observeAsState()
-    // показать элементы спинера
-    var expandedRegion: Boolean by remember { mutableStateOf(false) }
-    var expandedLocality: Boolean by remember { mutableStateOf(false) }
-    // выбранный таб
-    var tabPage by remember { mutableStateOf(TabPage.Wild) }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -115,13 +98,20 @@ fun FilterScreen(
                             .addOnSuccessListener { location ->
                                 Log.d("Location", "success")
                                 location?.let {
-                                    Log.d("Location","${location.latitude}  ${location.longitude}")
+                                    Log.d("Location", "${location.latitude}  ${location.longitude}")
                                     navController.navigate(Route.SightList.id + "/${location.latitude}/${location.longitude}")
-                                }?:
-                                Toast.makeText(RussiaTravelApplication.context, "Не удалось определить местоположение", Toast.LENGTH_LONG).show()
+                                } ?: Toast.makeText(
+                                    RussiaTravelApplication.context,
+                                    "Не удалось определить местоположение",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                             .addOnFailureListener {
-                                Toast.makeText(RussiaTravelApplication.context, "Не удалось определить местоположение", Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    RussiaTravelApplication.context,
+                                    "Не удалось определить местоположение",
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                     }
                     else -> {
@@ -138,84 +128,114 @@ fun FilterScreen(
             textAlign = TextAlign.Justify,
             modifier = Modifier.padding(vertical = 8.dp)
         )
+        FilterParameters() { localityValue ->
+            navController.navigate(
+                Route.SightList.id +
+                        "/$localityValue"
+            )
+        }
 
-        TabBar(
-            tabPage = tabPage,
-            onTabSelected = {
-                tabPage = it
-                viewModel.clearLocalities()
-                localityValue = locality
-                // если регион уже выбран
-                if (regionValue != region) {
-                    viewModel.fetchLocalities(
-                        itemsRegions.value!!.filter { item -> regionValue == item.name }[0].id,
-                        getRestTypeId(tabPage)
-                    )
-                }
-            }
-        )
 
-        Spacer(Modifier.height(20.dp))
+    }
+}
 
-        Spinner(
-            value = regionValue,
-            expanded = expandedRegion,
-            textcolor = if (regionValue != region) Color.Black else Color.LightGray,
-            items = itemsRegions.value,
-            onExpanded = { expandedRegion = true },
-            onCollapsed = { expandedRegion = false },
-            onItemClick = {
-                regionValue = it
-                viewModel.clearLocalities()
-                localityValue = locality
+@Composable
+fun FilterParameters(
+    viewModel: LocationViewModel = hiltNavGraphViewModel(),
+    onApplyClick: (Int) -> Unit = {}
+) {
+
+    viewModel.fetchRegions() // Загрузить список регионов
+    // Строковые ресурсы
+    val region = stringResource(id = R.string.region)
+    val locality = stringResource(id = R.string.locality)
+    // Подсказки для спинеров выбора расположения
+
+    var regionValue by remember { mutableStateOf(region) }
+    var localityValue by remember { mutableStateOf(locality) }
+    // массивы для спинеров
+    val itemsRegions = viewModel.regions.observeAsState()
+    val itemsLocalities = viewModel.localities.observeAsState()
+    // показать элементы спинера
+    var expandedRegion: Boolean by remember { mutableStateOf(false) }
+    var expandedLocality: Boolean by remember { mutableStateOf(false) }
+    // выбранный таб
+    var tabPage by remember { mutableStateOf(TabPage.Wild) }
+
+    TabBar(
+        tabPage = tabPage,
+        onTabSelected = {
+            tabPage = it
+            viewModel.clearLocalities()
+            localityValue = locality
+            // если регион уже выбран
+            if (regionValue != region) {
                 viewModel.fetchLocalities(
-                    itemsRegions.value!!.filter { item -> item.name == it }[0].id,
+                    itemsRegions.value!!.filter { item -> regionValue == item.name }[0].id,
                     getRestTypeId(tabPage)
                 )
             }
-        )
-        Spacer(Modifier.height(20.dp))
+        }
+    )
 
-        Spinner(
-            value = localityValue,
-            expanded = expandedLocality,
-            textcolor = if (localityValue != locality) Color.Black else Color.LightGray,
-            items = itemsLocalities.value,
-            enabled = regionValue != region,
-            onExpanded = { expandedLocality = true },
-            onCollapsed = { expandedLocality = false },
-            onItemClick = {
-                localityValue = it
-            }
-        )
-        Spacer(Modifier.height(20.dp))
+    Spacer(Modifier.height(20.dp))
 
-        FilledButton(
-            text = "Показать достопримечательности",
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = ColorBlueDark,
-                contentColor = Color.White
+    Spinner(
+        value = regionValue,
+        expanded = expandedRegion,
+        textcolor = if (regionValue != region) Color.Black else Color.LightGray,
+        items = itemsRegions.value,
+        onExpanded = { expandedRegion = true },
+        onCollapsed = { expandedRegion = false },
+        onItemClick = {
+            regionValue = it
+            viewModel.clearLocalities()
+            localityValue = locality
+            viewModel.fetchLocalities(
+                itemsRegions.value!!.filter { item -> item.name == it }[0].id,
+                getRestTypeId(tabPage)
             )
-        ) {
-            if (localityValue == locality) {
-                Toast
-                    .makeText(
-                        RussiaTravelApplication.context,
-                        "Выберите все параметры!",
-                        Toast.LENGTH_SHORT
-                    )
-                    .show()
-            } else {
-                navController.navigate(
-                    Route.SightList.id +
-                            "/${
-                                itemsLocalities
-                                    .value!!
-                                    .filter { it.name == localityValue }[0]
-                                    .id
-                            }"
+        }
+    )
+    Spacer(Modifier.height(20.dp))
+
+    Spinner(
+        value = localityValue,
+        expanded = expandedLocality,
+        textcolor = if (localityValue != locality) Color.Black else Color.LightGray,
+        items = itemsLocalities.value,
+        enabled = regionValue != region,
+        onExpanded = { expandedLocality = true },
+        onCollapsed = { expandedLocality = false },
+        onItemClick = {
+            localityValue = it
+        }
+    )
+    Spacer(Modifier.height(20.dp))
+
+    FilledButton(
+        text = "Показать достопримечательности",
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = ColorBlueDark,
+            contentColor = Color.White
+        )
+    ) {
+        if (localityValue == locality) {
+            Toast
+                .makeText(
+                    RussiaTravelApplication.context,
+                    "Выберите все параметры!",
+                    Toast.LENGTH_SHORT
                 )
-            }
+                .show()
+        } else {
+            onApplyClick(
+                viewModel
+                    .localities
+                    .value!!
+                    .filter { item -> item.name == localityValue }[0]
+                    .id
+            )
         }
     }
 }

@@ -132,6 +132,10 @@ class SightViewModel @Inject constructor(
         }
     }
 
+    fun removeSights(){
+        _sights.postValue(null)
+    }
+
     fun addFeedback(sightId: Int, rating: Int, token: String, feedback: String){
         viewModelScope.launch {
             isLoading.value = true

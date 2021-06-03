@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Russia Travel</string>
+    <string name="app_name">Путеводитель по России</string>
     <string name="region">Регион</string>
     <string name="locality">Город / местность</string>
 </resources>

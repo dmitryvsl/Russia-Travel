@@ -18,7 +18,8 @@ fun TopBar(
     title: String,
     icon: ImageVector,
     showActions: Boolean,
-    onButtonClicked: () -> Unit
+    onButtonClicked: () -> Unit,
+    onActionClicked: () -> Unit
 ) {
     TopAppBar(
         modifier = Modifier.padding(top = 24.dp),
@@ -33,7 +34,7 @@ fun TopBar(
         },
         actions = {
             if (showActions){
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { onActionClicked() }) {
                     Icon(Icons.Default.FilterAlt, null, tint = Color.White)
                 }
             }

@@ -9,11 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,25 +23,74 @@ import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import com.example.russiatravel.presentation.ui.Route
+import com.example.russiatravel.presentation.ui.filter.FilterParameters
 import com.example.russiatravel.ui.theme.ColorBlueDark
 import com.example.russiatravel.viewModel.SightViewModel
 import com.google.accompanist.coil.rememberCoilPainter
 
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SightList(
+    navController: NavController,
+    viewModel: SightViewModel = hiltNavGraphViewModel(),
+    bottomSheetScaffoldState: BottomSheetScaffoldState,
+    localityId: Int? = null,
+    latitude: Float? = null,
+    longitude: Float? = null
+) {
+    BottomSheetScaffold(
+        modifier = Modifier.fillMaxWidth(),
+        scaffoldState = bottomSheetScaffoldState,
+        sheetPeekHeight = 0.dp,
+        sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        sheetContent = {
+            SheetContent{
+                viewModel.removeSights()
+                viewModel.fetchSights(it)
+            }
+        }
+    ) {
+        SightListContent(
+            navController,
+            viewModel,
+            localityId,
+            latitude,
+            longitude
+        )
+    }
+
+
+}
+
+@Composable
+fun SheetContent(onApplyClick: (Int) -> Unit) {
+    Column(
+        Modifier.padding(top = 20.dp, bottom = 50.dp, start = 16.dp, end = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        FilterParameters(){
+            onApplyClick(it)
+        }
+    }
+}
+
+@Composable
+fun SightListContent(
     navController: NavController,
     viewModel: SightViewModel = hiltNavGraphViewModel(),
     localityId: Int? = null,
     latitude: Float? = null,
     longitude: Float? = null
 ) {
+
     val sights = viewModel.sights.observeAsState()
 
-    val sightRequest = remember (LocalContext.current){
+    val sightRequest = remember(LocalContext.current) {
         if (sights.value.isNullOrEmpty()) {
-            if (localityId != null){
+            if (localityId != null) {
                 viewModel.fetchSights(localityId)
-            }else{
+            } else {
                 viewModel.fetchSights(latitude!!, longitude!!)
             }
         }
@@ -84,7 +130,7 @@ fun SightList(
                                 contentDescription = "",
                                 contentScale = ContentScale.Crop
                             )
-                            if (item.distance != null){
+                            if (item.distance != null) {
                                 Surface(
                                     modifier = Modifier
                                         .align(Alignment.TopStart)
@@ -94,8 +140,12 @@ fun SightList(
                                 ) {
                                     Text(
                                         modifier = Modifier.padding(4.dp),
-                                        text = if (item.distance > 0) "${item.distance} км" else "${item.distance/1000} м",
-                                        style = MaterialTheme.typography.button.copy(color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                        text = if (item.distance > 0) "${item.distance} км" else "${item.distance / 1000} м",
+                                        style = MaterialTheme.typography.button.copy(
+                                            color = Color.White,
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
                                     )
                                 }
                             }
@@ -104,7 +154,11 @@ fun SightList(
                                     .align(Alignment.BottomStart)
                                     .padding(bottom = 16.dp, start = 12.dp),
                                 text = item.title,
-                                style = MaterialTheme.typography.button.copy(color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                style = MaterialTheme.typography.button.copy(
+                                    color = Color.White,
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             )
                         }
                     }
@@ -114,3 +168,4 @@ fun SightList(
         }
     }
 }
+
