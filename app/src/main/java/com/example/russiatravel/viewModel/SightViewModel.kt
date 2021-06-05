@@ -1,6 +1,7 @@
 package com.example.russiatravel.viewModel
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,6 +28,7 @@ class SightViewModel @Inject constructor(
 ) : ViewModel() {
 
     val sights: LiveData<List<Sight>> get() = _sights
+    @VisibleForTesting
     private var _sights: MutableLiveData<List<Sight>> = MutableLiveData()
 
     val sight: LiveData<Sight> get() = _sight
@@ -53,9 +55,8 @@ class SightViewModel @Inject constructor(
                     _sights.postValue(result.data)
                 }
                 is DataState.Error -> {
-                    Log.d("SightViewModel", result.error!!)
                     isLoading.value = false
-                    loadError.value = result.error
+                    loadError.value = result.error!!
                 }
             }
         }
@@ -70,9 +71,8 @@ class SightViewModel @Inject constructor(
                     _sights.postValue(result.data)
                 }
                 is DataState.Error -> {
-                    Log.d("SightViewModel", result.error!!)
                     isLoading.value = false
-                    loadError.value = result.error
+                    loadError.value = result.error!!
                 }
             }
         }
@@ -83,12 +83,10 @@ class SightViewModel @Inject constructor(
             isLoading.value = true
             when (val result = sightRepository.getSight(sightId)) {
                 is DataState.Success -> {
-                    Log.d("SUCCESS", "DATA GOT")
                     isLoading.value = false
                     _sight.postValue(result.data)
                 }
                 is DataState.Error -> {
-                    Log.d("ERROR", result.error!!)
                     isLoading.value = false
                     loadError.value = result.error!!
                 }
@@ -119,12 +117,10 @@ class SightViewModel @Inject constructor(
             isLoading.value = true
             when (val result = sightRepository.getFeedbacks(sightId)){
                 is DataState.Success -> {
-                    Log.d("ViewModel", "Success")
                     isLoading.value = false
                     _feedback.postValue(result.data)
                 }
                 is DataState.Error -> {
-                    Log.d("ViewModel", "Error")
                     isLoading.value = false
                     loadError.value = result.error!!
                 }
@@ -151,7 +147,4 @@ class SightViewModel @Inject constructor(
             }
         }
     }
-
-
-
 }

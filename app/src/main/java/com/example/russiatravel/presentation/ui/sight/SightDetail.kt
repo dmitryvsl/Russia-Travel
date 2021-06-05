@@ -33,7 +33,6 @@ import com.example.russiatravel.ui.theme.*
 import com.example.russiatravel.utils.rememberMapViewWithLifecycle
 import com.example.russiatravel.utils.setZoom
 import com.example.russiatravel.viewModel.SightViewModel
-import com.google.android.exoplayer2.util.Log
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.MapView
 import com.google.maps.android.ktx.addMarker
@@ -84,7 +83,6 @@ fun SightDetail(
     val feedbacks = viewModel.feedback.observeAsState()
 
     sight.value?.let {
-        Log.d("SightDetail", it.id.toString())
         var currentImage by remember { mutableStateOf(it.images[0]) }
 
         var selectedRating by remember { mutableStateOf(0) }

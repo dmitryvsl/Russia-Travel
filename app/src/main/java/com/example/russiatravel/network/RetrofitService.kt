@@ -5,7 +5,6 @@ import com.example.russiatravel.network.model.LocationResponse
 import com.example.russiatravel.network.model.Sight
 import com.example.russiatravel.network.model.User
 import com.example.russiatravel.network.response.ResponseWrapper
-import com.google.common.math.DoubleMath
 import retrofit2.http.*
 
 interface RetrofitService {
