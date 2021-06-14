@@ -74,10 +74,11 @@ fun SightDetail(
     var isRequestSent = remember(LocalContext.current) {
         viewModel.getSightDetail(sightId)
         viewModel.getFeedbacks(sightId)
+        viewModel.checkInBookmark(sightId)
         true
     }
 
-    var isBookmarkAdded by remember { mutableStateOf(false)}
+    var isBookmarkAdded = viewModel.checkInBookmark
 
     val sight = viewModel.sight.observeAsState()
     val feedbacks = viewModel.feedback.observeAsState()
@@ -109,10 +110,13 @@ fun SightDetail(
                         .height(400.dp),
                     images = it.images,
                     currentImage = currentImage,
-                    isBookmarkAdded = isBookmarkAdded,
+                    isBookmarkAdded = isBookmarkAdded.value,
                     onImageClick = { currentImage = it },
                     onBackIconClick = {  navController.navigateUp()},
-                    onBookmarkIconClick = { isBookmarkAdded = !isBookmarkAdded }
+                    onBookmarkIconClick = {
+                        viewModel.checkInBookmark.value = !isBookmarkAdded.value
+                        viewModel.addOrRemoveBookmark(it.id)
+                    }
                 )
             },
             frontLayerContent = {
@@ -335,6 +339,7 @@ private fun MapViewContainer(
     longitude: String
 ) {
     var mapInitialized by remember(map) { mutableStateOf(false) }
+
     LaunchedEffect(map, mapInitialized) {
         if (!mapInitialized) {
             val googleMap = map.awaitMap()
@@ -349,7 +354,6 @@ private fun MapViewContainer(
 
     var zoom by rememberSaveable(map) { mutableStateOf(InitialZoom) }
 
-
     Column{
         ZoomControls(zoom) {
             zoom = it.coerceIn(MinZoom, MaxZoom)
@@ -357,12 +361,11 @@ private fun MapViewContainer(
 
         val coroutineScope = rememberCoroutineScope()
         AndroidView({ map }) {
-            // Reading zoom so that AndroidView recomposes when it changes. The getMapAsync lambda
-            // is stored for later, Compose doesn't recognize state reads
             val mapZoom = zoom
             coroutineScope.launch {
                 val googleMap = map.awaitMap()
                 googleMap.setZoom(mapZoom)
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(latitude.toDouble(), longitude.toDouble())))
             }
         }
     }

@@ -94,5 +94,43 @@ class SightRepository @Inject constructor(
         }
     }
 
+    suspend fun addOrRemoveBookmark (sightId: Int) : DataState<String>{
+        val response = try {
+            retrofitService.addOrRemoveBookmark(sightId)
+        }catch (e: Exception){
+            return DataState.Error(e.message!!)
+        }
+        return if (response.statusId == 200){
+            DataState.Success(response.detail)
+        }else{
+            DataState.Error(response.error)
+        }
+    }
+
+    suspend fun getBookmarks(): DataState<List<Sight>>{
+        val response = try {
+            retrofitService.getBookmarks()
+        }catch (e: Exception){
+            return DataState.Error(e.message!!)
+        }
+        return if (response.statusId == 200){
+            DataState.Success(response.detail)
+        }else{
+            DataState.Error(response.error)
+        }
+    }
+    suspend fun checkInBookmark(sightId: Int): DataState<Boolean>{
+        val response = try {
+            retrofitService.checkInBookmark(sightId)
+        }catch (e: Exception){
+            return DataState.Error(e.message!!)
+        }
+        return if (response.statusId == 200){
+            DataState.Success(response.detail)
+        }else{
+            DataState.Error(response.error)
+        }
+    }
+
 
 }

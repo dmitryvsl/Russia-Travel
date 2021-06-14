@@ -62,7 +62,7 @@ fun FeedbackScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 TopAppBar(
-                    modifier = Modifier.height(49.dp),
+                    modifier = Modifier.statusBarsPadding(),
                     title = {
                         Text(
                             "Написать отзыв",

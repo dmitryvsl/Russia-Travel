@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-enum class FeedbackStatus{
+enum class FeedbackStatus {
     ERROR, SUCCESS
 }
 
@@ -28,7 +28,6 @@ class SightViewModel @Inject constructor(
 ) : ViewModel() {
 
     val sights: LiveData<List<Sight>> get() = _sights
-    @VisibleForTesting
     private var _sights: MutableLiveData<List<Sight>> = MutableLiveData()
 
     val sight: LiveData<Sight> get() = _sight
@@ -43,6 +42,7 @@ class SightViewModel @Inject constructor(
     val addFeedbackState: LiveData<FeedbackStatus> get() = _addFeedbackState
     private var _addFeedbackState: MutableLiveData<FeedbackStatus> = MutableLiveData()
 
+    var checkInBookmark = mutableStateOf(false)
     var loadError = mutableStateOf("")
     var isLoading = mutableStateOf(false)
 
@@ -94,10 +94,10 @@ class SightViewModel @Inject constructor(
         }
     }
 
-    fun getRoute(origin: String, destination: String){
+    fun getRoute(origin: String, destination: String) {
         viewModelScope.launch {
             isLoading.value = true
-            when (val result = sightRepository.getRoute(origin, destination)){
+            when (val result = sightRepository.getRoute(origin, destination)) {
                 is DataState.Success -> {
                     Log.d("ViewModel", "Success")
                     isLoading.value = false
@@ -112,10 +112,10 @@ class SightViewModel @Inject constructor(
         }
     }
 
-    fun getFeedbacks(sightId: Int){
+    fun getFeedbacks(sightId: Int) {
         viewModelScope.launch {
             isLoading.value = true
-            when (val result = sightRepository.getFeedbacks(sightId)){
+            when (val result = sightRepository.getFeedbacks(sightId)) {
                 is DataState.Success -> {
                     isLoading.value = false
                     _feedback.postValue(result.data)
@@ -128,14 +128,14 @@ class SightViewModel @Inject constructor(
         }
     }
 
-    fun removeSights(){
+    fun removeSights() {
         _sights.postValue(null)
     }
 
-    fun addFeedback(sightId: Int, rating: Int, token: String, feedback: String){
+    fun addFeedback(sightId: Int, rating: Int, token: String, feedback: String) {
         viewModelScope.launch {
             isLoading.value = true
-            when (sightRepository.addFeedback(sightId, rating, feedback, token)){
+            when (sightRepository.addFeedback(sightId, rating, feedback, token)) {
                 is DataState.Success -> {
                     isLoading.value = false
                     _addFeedbackState.postValue(FeedbackStatus.SUCCESS)
@@ -143,6 +143,41 @@ class SightViewModel @Inject constructor(
                 is DataState.Error -> {
                     isLoading.value = false
                     _addFeedbackState.postValue(FeedbackStatus.ERROR)
+                }
+            }
+        }
+    }
+
+    fun addOrRemoveBookmark(sightId: Int) {
+        viewModelScope.launch {
+            sightRepository.addOrRemoveBookmark(sightId)
+        }
+    }
+
+    fun getBookmarks(){
+        viewModelScope.launch {
+            isLoading.value = true
+            when (val response = sightRepository.getBookmarks()) {
+                is DataState.Success -> {
+                    isLoading.value = false
+                    _sights.postValue(response.data!!)
+                }
+                is DataState.Error -> {
+                    isLoading.value = false
+                    loadError.value = response.error!!
+                }
+            }
+        }
+    }
+
+    fun checkInBookmark (sightId: Int){
+        viewModelScope.launch {
+            when (val response = sightRepository.checkInBookmark(sightId)){
+                is DataState.Success -> {
+                    checkInBookmark.value = response.data!!
+                }
+                is DataState.Error -> {
+                    loadError.value = response.error!!
                 }
             }
         }

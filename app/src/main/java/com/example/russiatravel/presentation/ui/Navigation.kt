@@ -43,6 +43,7 @@ fun NavGraph() {
     val navController = rememberNavController()
     val startDestination =
         if (SharedPreferences.checkTokenExist()) Route.Filter.id else Route.StartScreen.id
+
     NavHost(navController = navController, startDestination = startDestination) {
         composable(Route.StartScreen.id) { navBackStackEntry ->
             Contents(navBackStackEntry, navController)
@@ -172,7 +173,7 @@ fun NavGraph() {
         }
         composable(Route.About.id) { navBackStackEntry ->
             ScaffoldDrawer(
-                topBarTitle = "О программе",
+                topBarTitle = "О проекте",
                 navController = navController,
                 icon = Icons.Default.ArrowBack
             ) {
@@ -215,7 +216,7 @@ fun Contents(
                 navController = navController,
                 sightId!!
             )
-            Route.Settings.id -> Settings()
+            Route.Settings.id -> Settings(navController)
             Route.About.id -> About()
             Route.Feedback.id + "/{sightId}/{rating}" -> FeedbackScreen(
                 rating = feedbackRating!!,

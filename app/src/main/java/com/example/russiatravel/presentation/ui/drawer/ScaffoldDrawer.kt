@@ -36,7 +36,6 @@ fun ScaffoldDrawer(
 
     Scaffold(
         topBar = {
-            Surface(color = ColorBlueDark, modifier = Modifier.height(25.dp)) {}
             TopBar(
                 title = topBarTitle,
                 icon = icon,

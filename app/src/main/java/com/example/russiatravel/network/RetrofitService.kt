@@ -1,5 +1,6 @@
 package com.example.russiatravel.network
 
+import com.example.russiatravel.cache.SharedPreferences
 import com.example.russiatravel.network.model.Feedback
 import com.example.russiatravel.network.model.LocationResponse
 import com.example.russiatravel.network.model.Sight
@@ -68,8 +69,6 @@ interface RetrofitService {
         @Query ("sight_id") sight_id: Int
     ) : ResponseWrapper<Feedback>
 
-
-
     @Headers("AppKey: konodioda")
     @GET("sight_info/near_sights.php")
     suspend fun getNearSights(
@@ -77,7 +76,25 @@ interface RetrofitService {
         @Query("latitude") latitude: Float
     ) : ResponseWrapper<List<Sight>>
 
+    @Headers("AppKey: konodioda")
+    @POST("sight_info/bookmark.php")
+    @FormUrlEncoded
+    suspend fun addOrRemoveBookmark(
+        @Field ("sight") sight: Int,
+        @Field ("token") token : String? = SharedPreferences.loadToken()
+    ): ResponseWrapper<String>
+
+    @Headers("AppKey: konodioda")
+    @GET ("sight_info/getBookmarks.php")
+    suspend fun getBookmarks(
+        @Query ("token") token:String? = SharedPreferences.loadToken()
+    ) : ResponseWrapper<List<Sight>>
 
 
-
+    @Headers("AppKey: konodioda")
+    @GET ("sight_info/checkInBookmark.php")
+    suspend fun checkInBookmark (
+        @Query ("sight") sight: Int,
+        @Query("token") token:String? = SharedPreferences.loadToken()
+    ): ResponseWrapper<Boolean>
 }

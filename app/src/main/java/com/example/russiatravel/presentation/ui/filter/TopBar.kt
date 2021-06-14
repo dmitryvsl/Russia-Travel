@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.russiatravel.ui.theme.ColorBlueDark
+import com.google.accompanist.insets.statusBarsPadding
 
 @Composable
 fun TopBar(
@@ -22,7 +23,7 @@ fun TopBar(
     onActionClicked: () -> Unit
 ) {
     TopAppBar(
-        modifier = Modifier.padding(top = 24.dp),
+        modifier = Modifier.statusBarsPadding(),
         title = {
             Text(text = title, style = MaterialTheme.typography.subtitle1)
         },

@@ -1,5 +1,6 @@
 package com.example.russiatravel.presentation.ui.sight
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -20,13 +21,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.example.russiatravel.cache.SharedPreferences
+import com.example.russiatravel.presentation.ui.RussiaTravelApplication
 import com.example.russiatravel.ui.theme.ColorPurple
 import com.example.russiatravel.ui.theme.ColorRed
 import com.google.accompanist.coil.rememberCoilPainter
 
 
 @Composable
-fun ImageStack(
+fun ImageSlider(
     modifier: Modifier,
     images: List<String>,
     currentImage: String,
@@ -46,20 +49,40 @@ fun ImageStack(
             contentScale = ContentScale.Crop
         )
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 25.dp).padding(horizontal = 16.dp).align(Alignment.TopCenter),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 25.dp)
+                .padding(horizontal = 16.dp)
+                .align(Alignment.TopCenter),
             horizontalArrangement = Arrangement.SpaceBetween,
-        ){
+        ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
                 contentDescription = null,
                 tint = Color.White,
-                modifier = Modifier.size(28.dp).clickable { onBackIconClick() }
+                modifier = Modifier
+                    .size(28.dp)
+                    .clickable { onBackIconClick() }
             )
             Icon(
-                imageVector =  if (isBookmarkAdded) Icons.Default.BookmarkAdded else Icons.Default.BookmarkAdd,
+                imageVector = if (isBookmarkAdded) Icons.Default.BookmarkAdded else Icons.Default.BookmarkAdd,
                 contentDescription = null,
-                tint = if (isBookmarkAdded) ColorRed else Color.White,
-                modifier = Modifier.size(28.dp).clickable { onBookmarkIconClick() }
+                tint = if (isBookmarkAdded && !SharedPreferences.isGuest()) ColorRed else Color.White,
+                modifier = Modifier
+                    .size(28.dp)
+                    .clickable {
+                        if (SharedPreferences.isGuest()) {
+                            Toast
+                                .makeText(
+                                    RussiaTravelApplication.context,
+                                    "Для использования этой опции необходимо авторизироваться!",
+                                    Toast.LENGTH_LONG
+                                )
+                                .show()
+                        } else {
+                            onBookmarkIconClick()
+                        }
+                    }
             )
         }
 

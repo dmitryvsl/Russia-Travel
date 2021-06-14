@@ -56,7 +56,7 @@ fun DrawerContent(navController: NavController) {
 
         }
         DrawerRow(text = "Избранное", icon = Icons.Default.Bookmarks) { navController.navigate(Route.Settings.id) }
-        DrawerRow(text = "О программе", icon = Icons.Default.Info) { navController.navigate(Route.About.id) }
+        DrawerRow(text = "О проекте", icon = Icons.Default.Info) { navController.navigate(Route.About.id) }
         Spacer(Modifier.height(6.dp))
         if (!SharedPreferences.isGuest()){
             Button(

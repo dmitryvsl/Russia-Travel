@@ -90,18 +90,6 @@ fun LoginScreen(
                 visualTransformation = PasswordVisualTransformation(),
                 onValueChange = { passwordValue = it },
             )
-            Spacer(Modifier.height(4.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Text(
-                    text = "Забыли пароль?",
-                    modifier = Modifier.clickable { },
-                    color = Color.Black,
-                    style = MaterialTheme.typography.button
-                )
-            }
 
             Spacer(Modifier.height(spacerHeight))
 

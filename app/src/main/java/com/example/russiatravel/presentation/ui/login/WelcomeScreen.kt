@@ -62,7 +62,8 @@ fun WelcomeScreen(navController: NavController, onButtonClick: (ScreenFragment) 
                     backgroundColor = ColorBlueDark,
                     contentColor = Color.White,
                 ),
-                onClick = { onButtonClick(ScreenFragment.Login) })
+                onClick = { onButtonClick(ScreenFragment.Login) }
+            )
         }
 
         Spacer(modifier = Modifier.height(14.dp))
