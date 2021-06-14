@@ -1,17 +1,19 @@
 package com.example.russiatravel.presentation.ui.sight
 
-import android.content.Context
 import android.widget.Toast
-import androidx.compose.foundation.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarOutline
+import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,39 +23,32 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
-import com.example.russiatravel.R
-import com.example.russiatravel.ui.theme.*
-import com.example.russiatravel.utils.rememberMapViewWithLifecycle
-import com.example.russiatravel.utils.setZoom
-import com.example.russiatravel.viewModel.SightViewModel
-import com.google.android.libraries.maps.CameraUpdateFactory
-import com.google.android.libraries.maps.MapView
-import com.google.maps.android.ktx.addMarker
-import com.google.maps.android.ktx.awaitMap
-import kotlinx.coroutines.launch
-import com.akexorcist.googledirection.GoogleDirection
-import com.akexorcist.googledirection.constant.TransportMode
-import com.akexorcist.googledirection.model.Direction
-import com.akexorcist.googledirection.util.DirectionConverter
-import com.akexorcist.googledirection.util.execute
 import com.example.russiatravel.cache.SharedPreferences
 import com.example.russiatravel.network.model.Feedback
 import com.example.russiatravel.network.model.FeedbackItem
 import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.presentation.ui.RussiaTravelApplication
-import com.example.russiatravel.presentation.ui.components.LoadingDialog
+import com.example.russiatravel.ui.theme.ColorBlueDark
+import com.example.russiatravel.ui.theme.ColorGray
+import com.example.russiatravel.ui.theme.ColorPurple
+import com.example.russiatravel.utils.rememberMapViewWithLifecycle
+import com.example.russiatravel.utils.setZoom
+import com.example.russiatravel.viewModel.SightViewModel
 import com.google.accompanist.coil.rememberCoilPainter
-import com.google.android.libraries.maps.model.MarkerOptions
-import com.google.android.libraries.maps.GoogleMap
+import com.google.android.libraries.maps.CameraUpdateFactory
+import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.LatLng
-import com.google.android.libraries.maps.model.PolylineOptions
+import com.google.maps.android.ktx.addMarker
+import com.google.maps.android.ktx.awaitMap
+import kotlinx.coroutines.launch
 
 enum class Tab {
     Map, Feedback
@@ -71,11 +66,10 @@ fun SightDetail(
     sightId: Int,
     viewModel: SightViewModel = hiltNavGraphViewModel()
 ) {
-    var isRequestSent = remember(LocalContext.current) {
+    SideEffect {
         viewModel.getSightDetail(sightId)
         viewModel.getFeedbacks(sightId)
         viewModel.checkInBookmark(sightId)
-        true
     }
 
     var isBookmarkAdded = viewModel.checkInBookmark
@@ -84,7 +78,6 @@ fun SightDetail(
     val feedbacks = viewModel.feedback.observeAsState()
 
     sight.value?.let {
-        var currentImage by remember { mutableStateOf(it.images[0]) }
 
         var selectedRating by remember { mutableStateOf(0) }
 
@@ -104,14 +97,12 @@ fun SightDetail(
             backLayerBackgroundColor = Color.White,
             frontLayerScrimColor = Color.Transparent,
             backLayerContent = {
-                ImageStack(
+                ImageSlider(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(400.dp),
                     images = it.images,
-                    currentImage = currentImage,
                     isBookmarkAdded = isBookmarkAdded.value,
-                    onImageClick = { currentImage = it },
                     onBackIconClick = {  navController.navigateUp()},
                     onBookmarkIconClick = {
                         viewModel.checkInBookmark.value = !isBookmarkAdded.value

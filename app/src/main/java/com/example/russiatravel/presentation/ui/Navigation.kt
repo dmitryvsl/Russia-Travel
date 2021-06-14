@@ -196,7 +196,7 @@ fun Contents(
     feedbackRating: Int? = null
 ) {
     Crossfade(targetState = route) {
-        when (it.arguments?.getString(KEY_ROUTE)) {
+        when (it.destination.route.toString()) {
             Route.StartScreen.id -> StartScreen(navController)
             Route.Filter.id -> FilterScreen(navController)
 

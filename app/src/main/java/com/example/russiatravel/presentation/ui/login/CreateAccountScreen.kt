@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
 import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.presentation.ui.components.ErrorDialog
 import com.example.russiatravel.presentation.ui.components.LoadingDialog
@@ -55,7 +54,7 @@ fun CreateAccountScreen(
         LoadingDialog() // Показывает окно загрузки
     }
     if (viewModel.token.value != ""){
-        navController.backStack.removeLast()
+        navController.backQueue.removeFirst()
         navController.navigate(Route.Filter.id)
     }
 

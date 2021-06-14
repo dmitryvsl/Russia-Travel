@@ -47,32 +47,36 @@ class SightViewModel @Inject constructor(
     var isLoading = mutableStateOf(false)
 
     fun fetchSights(localityId: Int) {
-        viewModelScope.launch {
-            isLoading.value = true
-            when (val result = sightRepository.fetchSights(localityId)) {
-                is DataState.Success -> {
-                    isLoading.value = false
-                    _sights.postValue(result.data)
-                }
-                is DataState.Error -> {
-                    isLoading.value = false
-                    loadError.value = result.error!!
+        if (_sights.value.isNullOrEmpty()){
+            viewModelScope.launch {
+                isLoading.value = true
+                when (val result = sightRepository.fetchSights(localityId)) {
+                    is DataState.Success -> {
+                        isLoading.value = false
+                        _sights.postValue(result.data)
+                    }
+                    is DataState.Error -> {
+                        isLoading.value = false
+                        loadError.value = result.error!!
+                    }
                 }
             }
         }
     }
 
     fun fetchSights(latitude: Float, longitude: Float) {
-        viewModelScope.launch {
-            isLoading.value = true
-            when (val result = sightRepository.fetchNearSights(latitude, longitude)) {
-                is DataState.Success -> {
-                    isLoading.value = false
-                    _sights.postValue(result.data)
-                }
-                is DataState.Error -> {
-                    isLoading.value = false
-                    loadError.value = result.error!!
+        if (_sights.value.isNullOrEmpty()) {
+            viewModelScope.launch {
+                isLoading.value = true
+                when (val result = sightRepository.fetchNearSights(latitude, longitude)) {
+                    is DataState.Success -> {
+                        isLoading.value = false
+                        _sights.postValue(result.data)
+                    }
+                    is DataState.Error -> {
+                        isLoading.value = false
+                        loadError.value = result.error!!
+                    }
                 }
             }
         }
@@ -128,8 +132,9 @@ class SightViewModel @Inject constructor(
         }
     }
 
+
     fun removeSights() {
-        _sights.postValue(null)
+        _sights.value = null
     }
 
     fun addFeedback(sightId: Int, rating: Int, token: String, feedback: String) {

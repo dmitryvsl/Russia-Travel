@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
 import com.example.russiatravel.cache.SharedPreferences
 import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.ui.components.FilledButton
@@ -82,7 +81,7 @@ fun WelcomeScreen(navController: NavController, onButtonClick: (ScreenFragment) 
                 contentColor = Color.White,
             ),
             onClick = {
-                navController.backStack.removeLast()
+                navController.backQueue.removeLast()
                 navController.navigate(Route.Filter.id)
                 SharedPreferences.saveGuest()
             }

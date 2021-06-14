@@ -19,7 +19,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
 import com.example.russiatravel.R
 import com.example.russiatravel.cache.SharedPreferences
 import com.example.russiatravel.presentation.ui.Route

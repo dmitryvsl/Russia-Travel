@@ -2,7 +2,6 @@ package com.example.russiatravel.presentation.ui.filter
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -12,12 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,21 +24,15 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
 import com.example.russiatravel.R
 import com.example.russiatravel.network.model.LocationResponse
-import com.example.russiatravel.presentation.ui.RussiaTravelApplication
 import com.example.russiatravel.presentation.ui.Route
+import com.example.russiatravel.presentation.ui.RussiaTravelApplication
 import com.example.russiatravel.presentation.ui.RussiaTravelApplication.Companion.context
 import com.example.russiatravel.ui.components.FilledButton
 import com.example.russiatravel.ui.theme.ColorBlueDark
-import com.example.russiatravel.ui.theme.ColorWhiteDark
 import com.example.russiatravel.viewModel.LocationViewModel
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import java.security.Permission
 
 @Composable
 fun FilterScreen(
@@ -128,7 +117,7 @@ fun FilterScreen(
             textAlign = TextAlign.Justify,
             modifier = Modifier.padding(vertical = 8.dp)
         )
-        FilterParameters() { localityValue ->
+        FilterParameters{ localityValue ->
             navController.navigate(
                 Route.SightList.id +
                         "/$localityValue"
@@ -145,21 +134,22 @@ fun FilterParameters(
     onApplyClick: (Int) -> Unit = {}
 ) {
 
-    viewModel.fetchRegions() // Загрузить список регионов
-    // Строковые ресурсы
+    LaunchedEffect(LocalContext.current){
+        viewModel.fetchRegions()
+    }
+
     val region = stringResource(id = R.string.region)
     val locality = stringResource(id = R.string.locality)
-    // Подсказки для спинеров выбора расположения
 
     var regionValue by remember { mutableStateOf(region) }
     var localityValue by remember { mutableStateOf(locality) }
-    // массивы для спинеров
+
     val itemsRegions = viewModel.regions.observeAsState()
     val itemsLocalities = viewModel.localities.observeAsState()
-    // показать элементы спинера
+
     var expandedRegion: Boolean by remember { mutableStateOf(false) }
     var expandedLocality: Boolean by remember { mutableStateOf(false) }
-    // выбранный таб
+
     var tabPage by remember { mutableStateOf(TabPage.Wild) }
 
     TabBar(

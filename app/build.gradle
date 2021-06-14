@@ -77,9 +77,10 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
 
     //Accompanist
-    implementation "com.google.accompanist:accompanist-coil:0.8.0"
-    implementation "com.google.accompanist:accompanist-insets:0.9.0"
+    implementation "com.google.accompanist:accompanist-coil:0.11.1"
+    implementation "com.google.accompanist:accompanist-insets:0.11.1"
     implementation "com.google.accompanist:accompanist-pager:0.11.1"
+    implementation "com.google.accompanist:accompanist-pager-indicators:0.11.1"
 
     //Router Map
     implementation 'com.akexorcist:google-direction-library:1.2.1'

@@ -20,7 +20,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
 import com.example.russiatravel.cache.SharedPreferences
 import com.example.russiatravel.presentation.ui.Route
 import com.example.russiatravel.presentation.ui.components.ErrorDialog
@@ -50,7 +49,7 @@ fun LoginScreen(
         LoadingDialog()
     }
     if (viewModel.token.value != ""){
-        navController.backStack.removeLast()
+        navController.backQueue.removeLast()
         navController.navigate(Route.Filter.id)
     }
 
@@ -136,7 +135,7 @@ fun LoginScreen(
                     contentColor = Color.White,
                 ),
                 onClick = {
-                    navController.backStack.removeLast()
+                    navController.backQueue.removeLast()
                     navController.navigate(Route.Filter.id)
                     SharedPreferences.saveGuest()
                 }

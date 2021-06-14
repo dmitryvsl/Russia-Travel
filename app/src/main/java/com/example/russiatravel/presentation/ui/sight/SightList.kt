@@ -44,7 +44,9 @@ fun SightList(
 ) {
     val coroutine = rememberCoroutineScope()
     BottomSheetScaffold(
-        modifier = Modifier.fillMaxWidth().border(border = BorderStroke(1.dp, ColorBlueDark)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(border = BorderStroke(1.dp, ColorBlueDark)),
         scaffoldState = bottomSheetScaffoldState,
         sheetPeekHeight = 0.dp,
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
@@ -91,19 +93,18 @@ fun SightListContent(
     longitude: Float? = null
 ) {
 
-    val sights = viewModel.sights.observeAsState()
-
-    val sightRequest = remember(LocalContext.current) {
-        if (sights.value.isNullOrEmpty()) {
-            if (localityId != null) {
-                viewModel.fetchSights(localityId)
-            } else {
-                viewModel.fetchSights(latitude!!, longitude!!)
-            }
+    localityId?.let {
+        LaunchedEffect(key1 = it){
+            viewModel.fetchSights(it)
         }
-        true
+    }
+    latitude?.let {
+        LaunchedEffect(key1 = it){
+            viewModel.fetchSights(latitude, longitude!!)
+        }
     }
 
+    val sights = viewModel.sights.observeAsState()
     if (viewModel.isLoading.value) {
         Column(
             Modifier.fillMaxSize(),
