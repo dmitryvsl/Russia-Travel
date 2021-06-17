@@ -46,8 +46,6 @@ fun ImageSlider(
     onBookmarkIconClick: () -> Unit
 ) {
     val pagerState = rememberPagerState(pageCount = images.size, initialOffscreenLimit = 2)
-    var currentImage by remember { mutableStateOf(images[pagerState.currentPage]) }
-    val painter = rememberCoilPainter(request = currentImage)
 
     val loadedImages: MutableList<LoadPainter<Any>> = mutableListOf()
     images.forEach {
@@ -65,7 +63,7 @@ fun ImageSlider(
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
-            when (painter.loadState) {
+            when (loadedImages[page].loadState) {
                 is ImageLoadState.Loading -> {
                     CircularProgressIndicator(
                         Modifier.align(Alignment.Center),

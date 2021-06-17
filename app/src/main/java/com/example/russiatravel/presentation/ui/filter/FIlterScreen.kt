@@ -6,6 +6,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -19,8 +21,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltNavGraphViewModel
 import androidx.navigation.NavController
@@ -117,7 +121,7 @@ fun FilterScreen(
             textAlign = TextAlign.Justify,
             modifier = Modifier.padding(vertical = 8.dp)
         )
-        FilterParameters{ localityValue ->
+        FilterParameters { localityValue ->
             navController.navigate(
                 Route.SightList.id +
                         "/$localityValue"
@@ -134,7 +138,7 @@ fun FilterParameters(
     onApplyClick: (Int) -> Unit = {}
 ) {
 
-    LaunchedEffect(LocalContext.current){
+    LaunchedEffect(LocalContext.current) {
         viewModel.fetchRegions()
     }
 
@@ -173,7 +177,7 @@ fun FilterParameters(
     Spinner(
         value = regionValue,
         expanded = expandedRegion,
-        textcolor = if (regionValue != region) Color.Black else Color.LightGray,
+        textColor = if (regionValue != region) Color.Black else Color.LightGray,
         items = itemsRegions.value,
         onExpanded = { expandedRegion = true },
         onCollapsed = { expandedRegion = false },
@@ -192,8 +196,8 @@ fun FilterParameters(
     Spinner(
         value = localityValue,
         expanded = expandedLocality,
-        textcolor = if (localityValue != locality) Color.Black else Color.LightGray,
-        items = itemsLocalities.value,
+        textColor = if (localityValue != locality) Color.Black else Color.LightGray,
+        items =  itemsLocalities.value,
         enabled = regionValue != region,
         onExpanded = { expandedLocality = true },
         onCollapsed = { expandedLocality = false },
@@ -242,7 +246,7 @@ fun Spinner(
     value: String,
     expanded: Boolean,
     items: List<LocationResponse>?,
-    textcolor: Color,
+    textColor: Color,
     enabled: Boolean = true,
     onExpanded: () -> Unit,
     onCollapsed: () -> Unit,
@@ -250,14 +254,12 @@ fun Spinner(
 ) {
     Box {
         Button(
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(10.dp),
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(4.dp),
             onClick = { onExpanded() },
             enabled = enabled,
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.White
-            )
+            border = BorderStroke(1.dp, ColorBlueDark),
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -265,15 +267,27 @@ fun Spinner(
             ) {
                 Text(
                     value,
-                    color = textcolor
+                    color = textColor
                 )
-                Icon(Icons.Default.ArrowDropDown, "")
+                Icon(
+                    Icons.Default.ArrowDropDown,
+                    null
+                )
             }
         }
+
         DropdownMenu(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    1.dp,
+                    ColorBlueDark,
+                    RoundedCornerShape(4.dp)
+                ),
             expanded = expanded,
+            offset = DpOffset(0.dp, (-4).dp),
             onDismissRequest = { onCollapsed() }) {
+
             items?.forEach { item ->
                 DropdownMenuItem(
                     modifier = Modifier.fillMaxWidth(),
@@ -288,9 +302,6 @@ fun Spinner(
                         style = MaterialTheme.typography.button.copy(color = Color.Black)
                     )
                 }
-            }
-            if (items == null) {
-                CircularProgressIndicator(color = ColorBlueDark)
             }
         }
     }

@@ -44,7 +44,7 @@ fun ScaffoldDrawer(
                 onActionClicked = onActionClicked
             )
         },
-        drawerContent = { DrawerContent(navController) },
+        drawerContent = { DrawerContent(navController, scaffoldState) },
         drawerGesturesEnabled = scaffoldState.drawerState.isOpen,
         scaffoldState = scaffoldState
     ) { content() }

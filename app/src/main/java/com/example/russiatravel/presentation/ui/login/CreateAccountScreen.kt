@@ -48,14 +48,14 @@ fun CreateAccountScreen(
     var isScreenVisible by remember { mutableStateOf(true) }
 
     if (viewModel.loadError.value != ""){
-        ErrorDialog (viewModel.loadError.value) {viewModel.loadError.value = ""} // Показывает окно ошибки
+        ErrorDialog (viewModel.loadError.value) {viewModel.loadError.value = ""}
     }
     if (viewModel.isLoading.value){
-        LoadingDialog() // Показывает окно загрузки
+        LoadingDialog()
     }
     if (viewModel.token.value != ""){
-        navController.backQueue.removeFirst()
         navController.navigate(Route.Filter.id)
+        navController.backQueue.remove(navController.getBackStackEntry(Route.StartScreen.id))
     }
 
     AnimatedVisibility(
@@ -159,7 +159,6 @@ fun CreateAccountScreen(
 
                 if (!nameError && !emailError && !passwordError && !confirmPasswordError) {
                     viewModel.createAccount(nameValue, emailValue, passwordValue)
-
                 }
             }
 

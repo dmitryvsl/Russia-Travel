@@ -49,8 +49,8 @@ fun LoginScreen(
         LoadingDialog()
     }
     if (viewModel.token.value != ""){
-        navController.backQueue.removeLast()
         navController.navigate(Route.Filter.id)
+        navController.backQueue.remove(navController.getBackStackEntry(Route.StartScreen.id))
     }
 
     AnimatedVisibility(visible = isScreenVisible,
@@ -135,8 +135,8 @@ fun LoginScreen(
                     contentColor = Color.White,
                 ),
                 onClick = {
-                    navController.backQueue.removeLast()
                     navController.navigate(Route.Filter.id)
+                    navController.backQueue.remove(navController.getBackStackEntry(Route.StartScreen.id))
                     SharedPreferences.saveGuest()
                 }
             )

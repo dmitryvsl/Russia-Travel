@@ -312,7 +312,6 @@ fun FeedbackRow(feedback: FeedbackItem) {
 
 }
 
-
 @Composable
 fun MapView(
     latitude: String,
@@ -321,7 +320,6 @@ fun MapView(
     val mapView = rememberMapViewWithLifecycle()
     MapViewContainer(mapView, latitude, longitude)
 }
-
 
 @Composable
 private fun MapViewContainer(
@@ -360,9 +358,7 @@ private fun MapViewContainer(
             }
         }
     }
-
 }
-
 
 @Composable
 private fun ZoomControls(
@@ -385,7 +381,7 @@ private fun ZoomButton(text: String, onClick: () -> Unit) {
         ),
         onClick = onClick
     ) {
-        Text(text = text, style = MaterialTheme.typography.h5)
+        Text(text = text, style = MaterialTheme.typography.h5.copy(color = ColorBlueDark))
     }
 }
 

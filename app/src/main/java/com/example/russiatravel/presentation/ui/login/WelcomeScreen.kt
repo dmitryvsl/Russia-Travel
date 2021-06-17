@@ -81,8 +81,8 @@ fun WelcomeScreen(navController: NavController, onButtonClick: (ScreenFragment) 
                 contentColor = Color.White,
             ),
             onClick = {
-                navController.backQueue.removeLast()
                 navController.navigate(Route.Filter.id)
+                navController.backQueue.remove(navController.getBackStackEntry(Route.StartScreen.id))
                 SharedPreferences.saveGuest()
             }
         )

@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,9 +28,14 @@ import com.example.russiatravel.ui.MainActivity
 import com.example.russiatravel.ui.theme.ColorBlueDark
 import com.example.russiatravel.ui.theme.ColorBrown
 import com.google.accompanist.coil.rememberCoilPainter
+import kotlinx.coroutines.launch
 
 @Composable
-fun DrawerContent(navController: NavController) {
+fun DrawerContent(
+    navController: NavController,
+    scaffoldState: ScaffoldState
+) {
+    val coroutineScope = rememberCoroutineScope()
     Column(
         Modifier
             .fillMaxSize(),
@@ -42,7 +48,6 @@ fun DrawerContent(navController: NavController) {
             contentAlignment = Alignment.BottomStart
         ){
             val user = SharedPreferences.loadUserInfo()
-            Log.d("user drawer", user.toString())
             Image(
                 modifier = Modifier.fillMaxSize(),
                 painter = if (SharedPreferences.isGuest()) painterResource(id = R.drawable.default_avatar) else rememberCoilPainter(user.avatar),
@@ -67,6 +72,9 @@ fun DrawerContent(navController: NavController) {
                 ),
                 onClick = {
                     Toast.makeText(RussiaTravelApplication.context, "Вы были авторизованы как гость", Toast.LENGTH_LONG).show()
+                    coroutineScope.launch {
+                        scaffoldState.drawerState.close()
+                    }
                     SharedPreferences.removeData()
                 }
             ){
